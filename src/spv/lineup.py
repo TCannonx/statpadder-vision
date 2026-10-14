@@ -56,10 +56,38 @@ class Lineup:
     def team(self, team: str) -> Team:
         return {"home": self.home, "away": self.away}[team]
 
+    def red_card_times(self, team: str) -> list[float]:
+        """Times of red cards that took a player off the pitch (a red on the bench changes nothing)."""
+        return _walk(self.team(team), [e for e in self.events if e.team == team])
+
     def on_pitch(self, team: str, time_s: float) -> int:
         starters = sum(p.starter for p in self.team(team).players)
-        reds = sum(1 for e in self.events if e.type == "red" and e.team == team and e.time_s <= time_s)
-        return starters - reds
+        return starters - sum(1 for t in self.red_card_times(team) if t <= time_s)
+
+
+def _walk(team: Team, events: list[Event]) -> list[float]:
+    """Plays the team's events in time order; raises LineupError on an impossible one.
+
+    Rolling substitutions are allowed (a player may come back on); a sent-off player may not.
+    """
+    on = {p.id for p in team.players if p.starter}
+    sent_off: set[str] = set()
+    reds = []
+    for e in sorted(events, key=lambda e: e.time_s):
+        if e.type == "sub":
+            if e.off not in on:
+                raise LineupError(f"lineup: sub at {e.time_s} s takes off {e.off!r}, who is not on the pitch")
+            if e.on in on or e.on in sent_off:
+                raise LineupError(f"lineup: sub at {e.time_s} s brings on {e.on!r}, who is on the pitch or sent off")
+            on = (on - {e.off}) | {e.on}
+        else:
+            if e.player in sent_off:
+                raise LineupError(f"lineup: {e.player!r} is sent off twice")
+            sent_off.add(e.player)
+            if e.player in on:
+                on.discard(e.player)
+                reds.append(e.time_s)
+    return reds
 
 
 def slot_occupancy(lineup: Lineup, times_s: np.ndarray) -> np.ndarray:
@@ -67,8 +95,7 @@ def slot_occupancy(lineup: Lineup, times_s: np.ndarray) -> np.ndarray:
     occ = np.zeros((len(times_s), 2 * SLOTS_PER_TEAM), dtype=bool)
     for k, team in enumerate(TEAMS):
         starters = sum(p.starter for p in lineup.team(team).players)
-        reds = sorted(e.time_s for e in lineup.events if e.type == "red" and e.team == team)
-        counts = starters - np.searchsorted(reds, times_s, side="right")
+        counts = starters - np.searchsorted(lineup.red_card_times(team), times_s, side="right")
         slots = np.arange(SLOTS_PER_TEAM)
         occ[:, k * SLOTS_PER_TEAM:(k + 1) * SLOTS_PER_TEAM] = slots[None, :] < counts[:, None]
     return occ
@@ -107,4 +134,7 @@ def load_lineup(path: Path) -> Lineup:
             if pid not in ids[event.team]:
                 raise LineupError(f"lineup: event {i} names player {pid!r}, not in the {event.team} squad")
         events.append(event)
-    return Lineup(home=home, away=away, events=tuple(sorted(events, key=lambda e: e.time_s)))
+    lineup = Lineup(home=home, away=away, events=tuple(sorted(events, key=lambda e: e.time_s)))
+    for team in TEAMS:
+        lineup.red_card_times(team)  # raises on an impossible sequence
+    return lineup

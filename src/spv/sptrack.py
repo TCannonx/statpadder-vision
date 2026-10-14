@@ -66,21 +66,28 @@ class TrackFile:
 
 def _to_cm(xy_m: np.ndarray) -> np.ndarray:
     cm = np.round(np.asarray(xy_m, dtype=float) * 100)
-    finite = np.isfinite(cm)
-    if (cm[finite] > 32767).any() or (cm[finite] < -32768).any():
+    if not np.isfinite(cm).all():
+        raise SptrackError("a position is NaN or infinite")
+    if (cm > 32767).any() or (cm < -32768).any():
         raise SptrackError("position outside the 16-bit centimetre range (about ±327 m)")
-    return np.where(finite, cm, 0).astype("<i2")
+    return cm.astype("<i2")
 
 
 def encode(xy_m: np.ndarray, unc_m: np.ndarray, state: np.ndarray) -> np.ndarray:
     xy_m = np.asarray(xy_m, dtype=float)
-    state = np.asarray(state).astype(np.uint8)
+    unc_m = np.broadcast_to(np.asarray(unc_m, dtype=float), np.shape(state))
+    state = np.asarray(state)
+    if ((state < State.SEEN) | (state > State.UNKNOWN)).any():
+        raise SptrackError("a state is not one of 0-3 (seen, predicted, not on the pitch, unknown)")
+    state = state.astype(np.uint8)
     shown = state <= State.PREDICTED
-    if np.isnan(xy_m[shown]).any():
-        raise SptrackError("a seen or predicted position has no x/y")
+    if not np.isfinite(xy_m[shown]).all():
+        raise SptrackError("a seen or predicted position has no finite x/y")
+    if not np.isfinite(unc_m[shown]).all() or (unc_m[shown] < 0).any():
+        raise SptrackError("a seen or predicted position has no valid uncertainty")
     xy_m = np.where(shown[..., None], xy_m, 0.0)
     cm = _to_cm(xy_m)
-    unc = np.clip(np.round(np.asarray(unc_m, dtype=float) / UNC_STEP_M), 0, 255)
+    unc = np.clip(np.round(np.where(shown, unc_m, 0.0) / UNC_STEP_M), 0, 255)
     out = np.zeros(state.shape, dtype=POS_DTYPE)
     out["x"], out["y"] = cm[..., 0], cm[..., 1]
     out["unc"] = np.where(shown, unc, 0).astype(np.uint8)

@@ -284,7 +284,7 @@ x/y → `SptrackError`; for NOT_ON_PITCH/UNKNOWN x, y, unc are stored as 0.
   - `test_missing_video_message(tmp_path, capsys)`: exit 1 and stderr contains the video path.
 - [ ] **Step 2: Run** `pytest tests/test_process.py -v` → FAIL.
 - [ ] **Step 3: Implement** the two stages and the `process` subcommand. `ProbeStage.inputs` = `{"video": file_identity(job.video)}`; `ExportStage.inputs` = `{"lineup": file_identity(job.lineup), "pitch": job.pitch, "rate": job.rate}`.
-- [ ] **Step 4: Run** → PASS. Then manually: a job for `D:\OneDrive\Bohs\clip1.mp4` in the scratchpad with `tests/clips/clip1.lineup.json` (created in Task 10; for now a copy of `lineup_11.json`), `spv process` → reports 450-ish moments. Don't commit the job.
+- [ ] **Step 4: Run** → PASS. Then manually: a job for `Bohs\clip1.mp4` (personal OneDrive) in the scratchpad with `tests/clips/clip1.lineup.json` (created in Task 10; for now a copy of `lineup_11.json`), `spv process` → reports 450-ish moments. Don't commit the job.
 - [ ] **Step 5: Commit** `feat: probe and export stages, spv process`.
 
 ### Task 6: Public tracking data (simulator truth)
@@ -483,7 +483,7 @@ Algorithm (not determined by the signature):
   - `test_clips_suite_none_without_config` → `None`.
   - `test_clips_suite_runtime_measure`: returns one measure named `clip.x.runtime_s_per_video_min`.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS.
-- [ ] **Step 5: Register clip1.** `spv clip add clip1 "D:/OneDrive/Bohs/clip1.mp4"`, then
+- [ ] **Step 5: Register clip1.** `spv clip add clip1 "<path to Bohsip1.mp4>"`, then
   `spv check --suite clips --update-baselines`, then `spv check` (all) → exit 0. Check
   `git status` shows no `local.config.json` and no video.
 - [ ] **Step 6: Commit** `feat: reference clip registration and clips suite` with both results tables.

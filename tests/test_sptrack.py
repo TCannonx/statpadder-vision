@@ -101,3 +101,21 @@ def test_size_full_match(tmp_path):
                       pieces=[], corrections=[])
     write_sptrack(tmp_path / "m.sptrack", track)
     assert (tmp_path / "m.sptrack").stat().st_size < 7.5e6
+
+
+@pytest.mark.parametrize("xy, unc, state", [
+    ([[np.inf, 5.0]], [0.0], [State.SEEN]),
+    ([[1.0, 5.0]], [np.nan], [State.PREDICTED]),
+    ([[1.0, 5.0]], [-1.0], [State.SEEN]),
+    ([[1.0, 5.0]], [0.0], [7]),
+])
+def test_bad_values_raise(xy, unc, state):
+    with pytest.raises(SptrackError):
+        encode(np.array(xy), np.array(unc), np.array(state))
+
+
+def test_nan_view_vertex_raises(tmp_path):
+    track = random_track()
+    track.view[0] = np.array([[0.0, 0.0], [np.nan, 1.0], [2.0, 2.0]])
+    with pytest.raises(SptrackError):
+        write_sptrack(tmp_path / "m.sptrack", track)

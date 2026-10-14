@@ -16,3 +16,20 @@ __pycache__/
 *.onnx
 *.egg-info/
 .pytest_cache/
+
+# More media formats (footage and frames show minors)
+*.MP4
+*.JPG
+*.jpeg
+*.JPEG
+*.PNG
+*.webp
+*.bmp
+*.tif
+*.tiff
+*.m4v
+*.mts
+*.MTS
+*.webm
+*.ts
+*.MOV

@@ -53,3 +53,45 @@ def test_event_unknown_player_rejected(tmp_path):
     data["events"][0]["on"] = "h99"
     with pytest.raises(LineupError, match="h99"):
         load_lineup(_write(tmp_path, data))
+
+
+def _with_events(tmp_path, events):
+    data = json.loads((FIXTURES / "lineup_11.json").read_text())
+    data["events"] = events
+    return _write(tmp_path, data)
+
+
+def test_red_for_player_off_the_pitch_keeps_count(tmp_path):
+    lineup = load_lineup(_with_events(tmp_path, [
+        {"type": "sub", "team": "home", "time_s": 100, "off": "h4", "on": "h12"},
+        {"type": "red", "team": "home", "time_s": 200, "player": "h4"},
+        {"type": "red", "team": "home", "time_s": 300, "player": "h13"}]))
+    assert lineup.on_pitch("home", 400) == 11
+    assert slot_occupancy(lineup, np.array([400.0]))[0, :11].all()
+
+
+def test_red_for_player_on_pitch_after_sub(tmp_path):
+    lineup = load_lineup(_with_events(tmp_path, [
+        {"type": "sub", "team": "home", "time_s": 100, "off": "h4", "on": "h12"},
+        {"type": "red", "team": "home", "time_s": 200, "player": "h12"}]))
+    assert lineup.on_pitch("home", 199) == 11 and lineup.on_pitch("home", 200) == 10
+
+
+def test_rolling_sub_back_on_allowed(tmp_path):
+    lineup = load_lineup(_with_events(tmp_path, [
+        {"type": "sub", "team": "home", "time_s": 100, "off": "h4", "on": "h12"},
+        {"type": "sub", "team": "home", "time_s": 200, "off": "h12", "on": "h4"}]))
+    assert lineup.on_pitch("home", 300) == 11
+
+
+@pytest.mark.parametrize("events, message", [
+    ([{"type": "red", "team": "home", "time_s": 10, "player": "h1"},
+      {"type": "red", "team": "home", "time_s": 20, "player": "h1"}], "h1"),
+    ([{"type": "sub", "team": "home", "time_s": 10, "off": "h12", "on": "h13"}], "h12"),
+    ([{"type": "sub", "team": "home", "time_s": 10, "off": "h4", "on": "h5"}], "h5"),
+    ([{"type": "red", "team": "home", "time_s": 10, "player": "h4"},
+      {"type": "sub", "team": "home", "time_s": 20, "off": "h5", "on": "h4"}], "h4"),
+])
+def test_impossible_events_rejected(tmp_path, events, message):
+    with pytest.raises(LineupError, match=message):
+        load_lineup(_with_events(tmp_path, events))
