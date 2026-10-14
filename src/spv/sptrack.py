@@ -95,6 +95,29 @@ def decode(pos: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return xy, pos["unc"].astype(float) * UNC_STEP_M, state
 
 
+def blank_track(n_moments: int, rate: float, pitch: tuple[float, float],
+                pitch_source: Literal["job", "default", "solved"] = "default",
+                teams: dict[str, str] | None = None) -> TrackFile:
+    """Every slot and the ball UNKNOWN: the starting point the stages fill in."""
+    from spv import __version__
+    from spv.lineup import slot_ids
+
+    n_slots = len(slot_ids())
+    manifest = Manifest(
+        format_version=FORMAT_VERSION, module_version=__version__, rate=rate,
+        pitch_length_m=pitch[0], pitch_width_m=pitch[1], pitch_source=pitch_source,
+        coordinate_system=COORDINATE_SYSTEM, teams=teams or {"home": "Home", "away": "Away"},
+        slots=slot_ids(), substitutions=[],
+        quality={"camera_share": 0.0, "seen_share": 0.0, "mean_uncertainty_m": 0.0}, n_moments=n_moments)
+    return TrackFile(
+        manifest=manifest,
+        positions=encode(np.full((n_moments, n_slots, 2), np.nan), np.zeros((n_moments, n_slots)),
+                         np.full((n_moments, n_slots), State.UNKNOWN)),
+        ball=encode(np.full((n_moments, 2), np.nan), np.zeros(n_moments), np.full(n_moments, State.UNKNOWN)),
+        ball_in_air=np.zeros(n_moments, dtype=bool), view=[np.zeros((0, 2))] * n_moments,
+        pieces=[], corrections=[])
+
+
 def _npy(array: np.ndarray) -> bytes:
     buf = io.BytesIO()
     np.save(buf, array, allow_pickle=False)
