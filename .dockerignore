@@ -1,0 +1,15 @@
+.git
+.venv
+.superpowers
+data
+tests
+docs
+*.mp4
+*.sptrack
+local.config.json
+*.mov
+*.mkv
+*.m4v
+*.jpg
+*.jpeg
+*.png

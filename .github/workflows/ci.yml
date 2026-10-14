@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - run: pip install -e .[dev]
+      - run: pytest -q
+      - uses: actions/cache@v4
+        with:
+          path: data/metrica
+          key: metrica-sample-game-2-v1
+      - run: spv data fetch metrica --game 2
+      - name: Simulator suite (regression check)
+        run: spv check --suite sim
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t statpadder-vision .
+      - name: Run a job through the image
+        run: |
+          work="$RUNNER_TEMP/work"
+          mkdir -p "$work"
+          docker run --rm --entrypoint ffmpeg -v "$work:/work" statpadder-vision \
+            -v error -f lavfi -i testsrc=duration=3:size=320x180:rate=25 -pix_fmt yuv420p /work/clip.mp4
+          cp tests/fixtures/lineup_11.json "$work/lineup.json"
+          echo '{"video": "clip.mp4", "lineup": "lineup.json", "output": "out/clip.sptrack"}' > "$work/job.json"
+          docker run --rm -v "$work:/work" statpadder-vision process --job /work/job.json
+          test -s "$work/out/clip.sptrack"
