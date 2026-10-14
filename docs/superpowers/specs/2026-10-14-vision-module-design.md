@@ -14,8 +14,9 @@ marked as **seen** or **predicted**, with an uncertainty in metres. Players who 
 a predicted position worked out from everything else the program knows.
 
 Most analysts only have the ball-following recording, so that is the input the module must work
-on. Full-pitch footage (the panorama, or Hudl's left and right lenses) exists for a few of
-Thomas's matches. It is used only to measure the module, never as an input it relies on.
+on. Full-pitch footage is never an input the module relies on. Thomas set the `pats_left` /
+`pats_right` recordings aside on 2026-10-14, so full-pitch truth comes from public professional
+tracking data through the simulator (see Testing).
 
 ## Decisions
 
@@ -56,8 +57,8 @@ redoing earlier ones, and each stage can be tested on its own.
 ### 1. Camera solver
 
 - A keypoint model finds the 28 pitch landmarks (box corners, line crossings, centre circle
-  points) in each frame. It is trained on Thomas's 9,992 labelled frames, and on his Roboflow
-  dataset if it can still be exported.
+  points) in each frame. It is trained on Thomas's Roboflow pitch keypoint dataset (about 20,000
+  annotated images), with the 9,992 frames already on disk as a fallback.
 - The camera on its mast doesn't move. One mast position and lens distortion are solved for the
   whole match. After that, each frame has only pan, tilt and zoom.
 - The fit runs over the whole match at once (bundle adjustment with smoothness over time).
@@ -78,8 +79,9 @@ redoing earlier ones, and each stage can be tested on its own.
   bottom centre of their box.
 - The ball is also searched for in overlapping tiles of the picture, so a small, distant ball
   isn't missed.
-- Starting point: a YOLO model fine-tuned on Thomas's own labelled frames and the public
-  Roboflow football set, then on frames from his own matches as they are corrected.
+- Starting point: a YOLO model fine-tuned on Thomas's own Roboflow players and referees dataset
+  and the public Roboflow football set, then on frames from his own matches as they are
+  corrected.
 - Every detection keeps its confidence. Nothing is thrown away at this stage; stage 4 decides.
 
 ### 3. Appearance
@@ -142,11 +144,12 @@ Two versions are built and measured against each other:
   tracking data, with a simulated ball-following camera hiding the players it wouldn't show
   (see Testing). The candidate sources, to be confirmed as available at build time: DFL /
   Bundesliga open tracking data, Metrica Sports sample matches, PFF FC's 2022 World Cup data,
-  SkillCorner open data. It is then fine-tuned on Thomas's full-pitch matches where possible.
+  SkillCorner open data.
 
-The learned model replaces the baseline only if it is more accurate on Thomas's full-pitch
-matches. Professional movement differs from academy movement, so the measurement on his own
-matches is what decides.
+The learned model replaces the baseline only if it is more accurate on held-out simulator
+matches with the camera tuned to Thomas's clips. Professional movement differs from academy
+movement, so if full-pitch footage of his own matches is used later, the measurement on it
+decides instead.
 
 ### 6. Ball
 
@@ -210,17 +213,20 @@ Short clips from Thomas's recordings: 30 to 60 seconds each, with pans, zooms, a
 and play at both ends. They live in personal OneDrive, never in the repo, because they show
 minors. A git-ignored local config file holds their paths.
 
-Their known answers come with as little hand work as possible:
+The first reference clip is `Bohs\clip1.mp4` (45 s, May 2026). More are added as they are
+needed. Their known answers come with as little hand work as possible:
 
 - **Camera**: landmarks Thomas has already labelled where the clip overlaps them. Otherwise
   landmarks are held back from the solve and measured.
-- **Players, ball and off-screen positions**: from the full-pitch recording of the same match
-  (`pats_left` / `pats_right`). Each fixed lens is calibrated once, and players are detected
-  across the whole pitch, where nobody is off screen. That gives positions for everyone. They are
-  checked by eye on a sample of frames and corrected only where clearly wrong. The ball-following
-  view of the same moments is the input, either the real export or one cut from the panorama if
-  that's all there is.
-- **Hand labelling** is used only if both of those fail.
+- **Detector**: measured on the held-out part of Thomas's Roboflow datasets, which are already
+  labelled.
+- **Players and ball in view**: a slow, high-accuracy offline pass (the largest detector and
+  tracker that fit) proposes the answers. They are checked by eye on a sample of frames and
+  corrected only where clearly wrong.
+- **Off-screen positions**: these can't be known from a ball-following clip, so they are
+  measured on the simulator only. On the reference clip the predictor is checked for staying
+  outside the area in view and for consistency with the next sighting.
+- **Hand labelling** is used only if these fail.
 
 ### The regression check
 
@@ -261,16 +267,14 @@ Each is its own plan and set of changes, and each has to pass the check before t
 
 ## Open items
 
-- **Roboflow dataset**: Thomas's own labelled set is in Roboflow, with the subscription lapsed.
-  An export with his sign-in is to be tried. The local copies already found are 9,992 frames of
-  landmark labels (`Bohs\statpadder\Automation\football_analysis\coco_keypoints_annotations.json`,
-  and the same as YOLO files in `yolo_dataset`). Thomas called this his own dataset, so it is
-  treated as hand labelled.
-- **Reference clips**: Thomas has clips named like `clip_1`, `clip_2`. Which three are meant is
-  to be confirmed (the newest found is `Bohs\clip1.mp4`, 45 s, May 2026).
-- **`pats_left` / `pats_right`**: whether the ball-following export of that match can be had.
-  If not, the following view is cut from the panorama.
-- **Graphics card**: model and memory are read off Thomas's computer at foundation time. They
-  set model sizes and whether training runs locally.
+- **Roboflow datasets**: Thomas has two in Roboflow: about 20,000 images annotated with pitch
+  keypoints, and one annotated with players and referees. He will give their URLs for export.
+  The local fallback is 9,992 frames of landmark labels
+  (`Bohs\statpadder\Automation\football_analysis\coco_keypoints_annotations.json`, and the same
+  as YOLO files in `yolo_dataset`). Downloaded datasets stay in personal OneDrive, never in the
+  repo.
+- **Graphics card**: NVIDIA GeForce RTX 2060, 6 GB (driver 595.95, CUDA 13.2), read on
+  2026-10-14. Small and medium YOLO and keypoint models train locally with modest batch sizes;
+  the learned predictor is kept small, or trained elsewhere if 6 GB proves too tight.
 - **Academy pitches** with several sets of markings and no full-size boxes: the camera solver
   will need a fallback. Measured on the reference clips before deciding how.
