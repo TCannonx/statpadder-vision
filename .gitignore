@@ -1,0 +1,16 @@
+# Footage shows minors: never commit video, frames or local paths
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.jpg
+*.png
+data/
+runs/
+cache/
+local.config.*
+*.sptrack
+__pycache__/
+.venv/
+*.pt
+*.onnx
