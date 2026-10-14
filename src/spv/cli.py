@@ -46,6 +46,36 @@ def _data_fetch(args: argparse.Namespace) -> int:
     return 0
 
 
+def _check(args: argparse.Namespace) -> int:
+    from spv.check.measures import compare, load_baseline, results_table, update_baseline
+    from spv.check.suites import SUITES
+    from spv.config import REPO_ROOT
+
+    failed = False
+    names = list(SUITES) if args.suite == "all" else [args.suite]
+    for name in names:
+        measures = SUITES[name]()
+        if measures is None:
+            print(f"## {name}: skipped (no data configured)\n")
+            continue
+        baseline_path = REPO_ROOT / "tests" / "baselines" / f"{name}.json"
+        if args.update_baselines:
+            try:
+                outcomes = update_baseline(baseline_path, measures)
+            except ValueError as exc:
+                print(f"spv check: {exc}", file=sys.stderr)
+                return 1
+        else:
+            outcomes = compare(measures, load_baseline(baseline_path))
+        table = results_table(outcomes)
+        results_path = REPO_ROOT / "tests" / "results" / f"{name}.md"
+        results_path.parent.mkdir(parents=True, exist_ok=True)
+        results_path.write_text(f"# spv check: {name}\n\n{table}", encoding="utf-8")
+        print(f"## {name}\n\n{table}")
+        failed |= any(o.status in ("worse", "missing") for o in outcomes)
+    return 1 if failed else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="spv", description=__doc__)
     parser.add_argument("--version", action="store_true", help="print the version and exit")
@@ -60,6 +90,11 @@ def build_parser() -> argparse.ArgumentParser:
     process = sub.choices["process"]
     process.add_argument("--job", type=Path, required=True, help="path to job.json")
     process.set_defaults(func=_process)
+    check = sub.choices["check"]
+    check.add_argument("--suite", choices=["all", "sim", "clips"], default="all")
+    check.add_argument("--update-baselines", action="store_true",
+                       help="save new and better values (refused if anything got worse)")
+    check.set_defaults(func=_check)
     data_sub = sub.choices["data"].add_subparsers(dest="data_command", required=True)
     fetch = data_sub.add_parser("fetch", help="download public tracking data")
     fetch.add_argument("source", choices=["metrica"])

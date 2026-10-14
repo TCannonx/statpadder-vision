@@ -12,5 +12,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: pip install -e .[dev]
       - run: pytest -q
+      - uses: actions/cache@v4
+        with:
+          path: data/metrica
+          key: metrica-sample-game-2-v1
+      - run: spv data fetch metrica --game 2
+      - name: Simulator suite (regression check)
+        run: spv check --suite sim
