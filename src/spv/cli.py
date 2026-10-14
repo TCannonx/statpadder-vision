@@ -76,6 +76,15 @@ def _check(args: argparse.Namespace) -> int:
     return 1 if failed else 0
 
 
+def _clip_add(args: argparse.Namespace) -> int:
+    from spv.check.suites import add_clip
+    from spv.config import REPO_ROOT
+
+    add_clip(args.name, args.path, REPO_ROOT)
+    print(f"registered {args.name}: metadata in tests/clips/{args.name}.json, path in local.config.json")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="spv", description=__doc__)
     parser.add_argument("--version", action="store_true", help="print the version and exit")
@@ -95,6 +104,11 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--update-baselines", action="store_true",
                        help="save new and better values (refused if anything got worse)")
     check.set_defaults(func=_check)
+    clip_sub = sub.choices["clip"].add_subparsers(dest="clip_command", required=True)
+    clip_add = clip_sub.add_parser("add", help="register a reference clip (its path stays in local.config.json)")
+    clip_add.add_argument("name")
+    clip_add.add_argument("path", type=Path)
+    clip_add.set_defaults(func=_clip_add)
     data_sub = sub.choices["data"].add_subparsers(dest="data_command", required=True)
     fetch = data_sub.add_parser("fetch", help="download public tracking data")
     fetch.add_argument("source", choices=["metrica"])

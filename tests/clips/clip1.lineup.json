@@ -1,0 +1,123 @@
+{
+ "home": {
+  "name": "Home",
+  "players": [
+   {
+    "id": "h1",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h2",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h3",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h4",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h5",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h6",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h7",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h8",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h9",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h10",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "h11",
+    "number": null,
+    "starter": true
+   }
+  ]
+ },
+ "away": {
+  "name": "Away",
+  "players": [
+   {
+    "id": "a1",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a2",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a3",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a4",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a5",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a6",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a7",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a8",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a9",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a10",
+    "number": null,
+    "starter": true
+   },
+   {
+    "id": "a11",
+    "number": null,
+    "starter": true
+   }
+  ]
+ },
+ "events": []
+}
