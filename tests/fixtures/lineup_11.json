@@ -1,0 +1,181 @@
+{
+ "home": {
+  "name": "Home",
+  "players": [
+   {
+    "id": "h1",
+    "number": 1,
+    "starter": true
+   },
+   {
+    "id": "h2",
+    "number": 2,
+    "starter": true
+   },
+   {
+    "id": "h3",
+    "number": 3,
+    "starter": true
+   },
+   {
+    "id": "h4",
+    "number": 4,
+    "starter": true
+   },
+   {
+    "id": "h5",
+    "number": 5,
+    "starter": true
+   },
+   {
+    "id": "h6",
+    "number": 6,
+    "starter": true
+   },
+   {
+    "id": "h7",
+    "number": 7,
+    "starter": true
+   },
+   {
+    "id": "h8",
+    "number": 8,
+    "starter": true
+   },
+   {
+    "id": "h9",
+    "number": 9,
+    "starter": true
+   },
+   {
+    "id": "h10",
+    "number": 10,
+    "starter": true
+   },
+   {
+    "id": "h11",
+    "number": 11,
+    "starter": true
+   },
+   {
+    "id": "h12",
+    "number": 12,
+    "starter": false
+   },
+   {
+    "id": "h13",
+    "number": 13,
+    "starter": false
+   },
+   {
+    "id": "h14",
+    "number": 14,
+    "starter": false
+   },
+   {
+    "id": "h15",
+    "number": 15,
+    "starter": false
+   },
+   {
+    "id": "h16",
+    "number": 16,
+    "starter": false
+   }
+  ]
+ },
+ "away": {
+  "name": "Away",
+  "players": [
+   {
+    "id": "a1",
+    "number": 1,
+    "starter": true
+   },
+   {
+    "id": "a2",
+    "number": 2,
+    "starter": true
+   },
+   {
+    "id": "a3",
+    "number": 3,
+    "starter": true
+   },
+   {
+    "id": "a4",
+    "number": 4,
+    "starter": true
+   },
+   {
+    "id": "a5",
+    "number": 5,
+    "starter": true
+   },
+   {
+    "id": "a6",
+    "number": 6,
+    "starter": true
+   },
+   {
+    "id": "a7",
+    "number": 7,
+    "starter": true
+   },
+   {
+    "id": "a8",
+    "number": 8,
+    "starter": true
+   },
+   {
+    "id": "a9",
+    "number": 9,
+    "starter": true
+   },
+   {
+    "id": "a10",
+    "number": 10,
+    "starter": true
+   },
+   {
+    "id": "a11",
+    "number": 11,
+    "starter": true
+   },
+   {
+    "id": "a12",
+    "number": 12,
+    "starter": false
+   },
+   {
+    "id": "a13",
+    "number": 13,
+    "starter": false
+   },
+   {
+    "id": "a14",
+    "number": 14,
+    "starter": false
+   },
+   {
+    "id": "a15",
+    "number": 15,
+    "starter": false
+   },
+   {
+    "id": "a16",
+    "number": 16,
+    "starter": false
+   }
+  ]
+ },
+ "events": [
+  {
+   "type": "sub",
+   "team": "home",
+   "time_s": 50,
+   "off": "h4",
+   "on": "h12"
+  }
+ ]
+}

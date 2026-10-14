@@ -1,0 +1,140 @@
+{
+ "home": {
+  "name": "Home",
+  "players": [
+   {
+    "id": "h1",
+    "number": 1,
+    "starter": true
+   },
+   {
+    "id": "h2",
+    "number": 2,
+    "starter": true
+   },
+   {
+    "id": "h3",
+    "number": 3,
+    "starter": true
+   },
+   {
+    "id": "h4",
+    "number": 4,
+    "starter": true
+   },
+   {
+    "id": "h5",
+    "number": 5,
+    "starter": true
+   },
+   {
+    "id": "h6",
+    "number": 6,
+    "starter": true
+   },
+   {
+    "id": "h7",
+    "number": 7,
+    "starter": true
+   },
+   {
+    "id": "h8",
+    "number": 8,
+    "starter": true
+   },
+   {
+    "id": "h9",
+    "number": 9,
+    "starter": true
+   },
+   {
+    "id": "h10",
+    "number": 10,
+    "starter": false
+   },
+   {
+    "id": "h11",
+    "number": 11,
+    "starter": false
+   },
+   {
+    "id": "h12",
+    "number": 12,
+    "starter": false
+   }
+  ]
+ },
+ "away": {
+  "name": "Away",
+  "players": [
+   {
+    "id": "a1",
+    "number": 1,
+    "starter": true
+   },
+   {
+    "id": "a2",
+    "number": 2,
+    "starter": true
+   },
+   {
+    "id": "a3",
+    "number": 3,
+    "starter": true
+   },
+   {
+    "id": "a4",
+    "number": 4,
+    "starter": true
+   },
+   {
+    "id": "a5",
+    "number": 5,
+    "starter": true
+   },
+   {
+    "id": "a6",
+    "number": 6,
+    "starter": true
+   },
+   {
+    "id": "a7",
+    "number": 7,
+    "starter": true
+   },
+   {
+    "id": "a8",
+    "number": 8,
+    "starter": true
+   },
+   {
+    "id": "a9",
+    "number": 9,
+    "starter": true
+   },
+   {
+    "id": "a10",
+    "number": 10,
+    "starter": false
+   },
+   {
+    "id": "a11",
+    "number": 11,
+    "starter": false
+   },
+   {
+    "id": "a12",
+    "number": 12,
+    "starter": false
+   }
+  ]
+ },
+ "events": [
+  {
+   "type": "red",
+   "team": "away",
+   "time_s": 100,
+   "player": "a6"
+  }
+ ]
+}
