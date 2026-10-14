@@ -36,6 +36,16 @@ def _process(args: argparse.Namespace) -> int:
     return 0
 
 
+def _data_fetch(args: argparse.Namespace) -> int:
+    from spv.config import data_dir
+    from spv.sim.tracks import ensure_metrica
+
+    for game in args.game or [1, 2]:
+        home, away = ensure_metrica(game, data_dir())
+        print(f"metrica game {game}: {home.parent}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="spv", description=__doc__)
     parser.add_argument("--version", action="store_true", help="print the version and exit")
@@ -50,6 +60,11 @@ def build_parser() -> argparse.ArgumentParser:
     process = sub.choices["process"]
     process.add_argument("--job", type=Path, required=True, help="path to job.json")
     process.set_defaults(func=_process)
+    data_sub = sub.choices["data"].add_subparsers(dest="data_command", required=True)
+    fetch = data_sub.add_parser("fetch", help="download public tracking data")
+    fetch.add_argument("source", choices=["metrica"])
+    fetch.add_argument("--game", type=int, action="append", help="Metrica sample game (default 1 and 2)")
+    fetch.set_defaults(func=_data_fetch)
     return parser
 
 
