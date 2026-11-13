@@ -28,7 +28,7 @@ def test_add_and_inventory(tmp_path):
 def test_ids_are_anonymous(tmp_path):
     video, events = _files(tmp_path)
     with pytest.raises(ValueError):
-        add_match("bohs-u17", video, events, repo_root=tmp_path)
+        add_match("team-u17", video, events, repo_root=tmp_path)
 
 
 def test_missing_file_is_refused(tmp_path):
