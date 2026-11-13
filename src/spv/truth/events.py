@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -66,6 +67,12 @@ class _Teams:
 
 def read_eyeball(path: Path) -> TruthFile:
     rows = _rows(Path(path).read_text(encoding="utf-8-sig"), ";")
+    events, timed = _classify_eyeball(rows)
+    return TruthFile("eyeball", len(rows), timed, events)
+
+
+def _classify_eyeball(rows: list[dict[str, str]]) -> tuple[list[TruthEvent], int]:
+    """Turn Eyeball-shaped rows (CSV rows, or XML instances reshaped to match) into trusted events."""
     teams, events, timed = _Teams(), [], 0
     kick_off_due = {1: True, 2: True}  # the first pass of a half, and the first after a goal
     for row in rows:
@@ -97,6 +104,40 @@ def read_eyeball(path: Path) -> TruthFile:
             kick_off_due[half] = True
         if kind:
             events.append(TruthEvent(row.get("ID", ""), half, t, kind, team, x, y, outcome))
+    return events, timed
+
+
+def read_eyeball_xml(path: Path) -> TruthFile:
+    """An Eyeball Sportscode XML export: the same data as the CSV, in <instance> elements."""
+    root = ET.fromstring(Path(path).read_bytes())
+    rows: list[dict[str, str]] = []
+    for inst in root.iter("instance"):
+        labels: dict[str, str] = {}
+        for label in inst.findall("label"):
+            labels.setdefault((label.findtext("group") or "").strip(), (label.findtext("text") or "").strip())
+        if "TEAM" not in labels:  # period markers such as "Kick Off"
+            continue
+        event, details = labels.get("EVENT", ""), {}
+        if event == "pass" and "PASS_RESTART" in labels:
+            details["restart"] = labels["PASS_RESTART"]
+        elif event == "shot":
+            if "SHOT_RESTART" in labels:
+                details["restart"] = labels["SHOT_RESTART"]
+            if "SHOT_ON_TARGET" in labels:
+                details["on_target"] = labels["SHOT_ON_TARGET"]
+        rows.append(
+            {
+                "ID": (inst.findtext("ID") or "").strip(),
+                "Half": labels.get("HALF", ""),
+                "Event": event,
+                "Team": labels["TEAM"],
+                "Video time": (inst.findtext("start") or "").strip(),
+                "X coordinate": labels.get("X_COORDINATE", ""),
+                "Y coordinate": labels.get("Y_COORDINATE", ""),
+                "Details": json.dumps(details),
+            }
+        )
+    events, timed = _classify_eyeball(rows)
     return TruthFile("eyeball", len(rows), timed, events)
 
 
@@ -129,7 +170,10 @@ def read_statpadder(path: Path) -> TruthFile:
 
 
 def read_events(path: Path) -> TruthFile:
-    lines = Path(path).read_text(encoding="utf-8-sig").splitlines()
+    text = Path(path).read_text(encoding="utf-8-sig")
+    if text.lstrip().startswith(("<?xml", "<file")):
+        return read_eyeball_xml(path)
+    lines = text.splitlines()
     first = lines[0] if lines else ""
     if "Video time" in first:
         return read_eyeball(path)

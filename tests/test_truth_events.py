@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from spv.truth.events import TruthEvent, read_events, read_eyeball, read_statpadder, zone
-from truth_samples import EYEBALL_SAMPLE, STATPADDER_SAMPLE
+from spv.truth.events import TruthEvent, read_events, read_eyeball, read_eyeball_xml, read_statpadder, zone
+from truth_samples import EYEBALL_SAMPLE, EYEBALL_TIMED, EYEBALL_XML_SAMPLE, STATPADDER_SAMPLE
 
 
 def _write(tmp_path: Path, name: str, text: str) -> Path:
@@ -67,3 +67,22 @@ def test_truth_event_is_frozen():
     event = TruthEvent("1", 1, 1.0, "shot", "A", None, None)
     with pytest.raises(AttributeError):
         event.kind = "goal"
+
+
+def test_eyeball_xml_matches_the_csv(tmp_path):
+    csv_file = read_eyeball(_write(tmp_path, "e.csv", EYEBALL_TIMED))
+    xml_file = read_eyeball_xml(_write(tmp_path, "e.xml", EYEBALL_XML_SAMPLE))
+    assert xml_file.events == csv_file.events
+    assert (xml_file.source, xml_file.rows, xml_file.timed_rows) == ("eyeball", 11, 11)
+
+
+def test_eyeball_xml_drops_names(tmp_path):
+    text = repr(read_eyeball_xml(_write(tmp_path, "e.xml", EYEBALL_XML_SAMPLE)))
+    for name in ("PLAYER", "Alpha", "Beta"):
+        assert name not in text
+
+
+def test_read_events_detects_xml(tmp_path):
+    tf = read_events(_write(tmp_path, "e.xml", EYEBALL_XML_SAMPLE))
+    assert tf.source == "eyeball"
+    assert len(tf.events) == 9
