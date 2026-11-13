@@ -1,0 +1,51 @@
+import json
+
+import pytest
+
+from spv import config
+from spv.cli import main
+from truth_samples import EYEBALL_TIMED
+
+
+@pytest.fixture
+def repo(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "REPO_ROOT", tmp_path)
+    return tmp_path
+
+
+def test_truth_flow(repo, tiny_video, capsys):
+    events = repo / "e.csv"
+    events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
+    assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
+    assert main(["truth", "add", "bohs", str(tiny_video), str(events)]) == 1
+    assert main(["truth", "inventory"]) == 0
+    assert "| m01 | eyeball |" in (repo / "tests/truth/inventory.md").read_text(encoding="utf-8")
+    assert main(["truth", "split"]) == 0
+    assert json.loads((repo / "tests/truth/split.json").read_text())["p0"] == ["m01"]
+    assert main(["truth", "split"]) == 1  # fixed once made
+
+    capsys.readouterr()
+    assert main(["truth", "events", "m01", "--kind", "corner"]) == 0
+    listed = capsys.readouterr().out.strip().splitlines()
+    assert len(listed) == 1 and listed[0].startswith("3\t")
+
+    assert main(["truth", "sheet", "m01", "--row", "1", "--base", "-29", "--around=-0.5:0.5:0.5"]) == 0
+    assert len(list((repo / "runs/truth/m01").glob("*.png"))) == 1
+    assert main(["truth", "mark", "m01", "--row", "1", "--offset", "-29"]) == 0
+    assert main(["truth", "mark", "m01", "--row", "99", "--offset", "0"]) == 1
+    assert main(["truth", "kit", "m01", "--team", "A", "--looks", "white shirts"]) == 0
+    assert main(["truth", "attack", "m01", "--row", "4", "--goal", "right"]) == 0
+    align = json.loads((repo / "tests/truth/align/m01.json").read_text())
+    assert align["marks"][0]["offset_s"] == -29.0 and align["kits"] == {"A": "white shirts"}
+
+    assert main(["truth", "spots", "m01"]) == 1  # half 2 has no offset yet
+    assert main(["truth", "mark", "m01", "--row", "9", "--offset", "-2999"]) == 0
+    assert main(["truth", "spots", "m01"]) == 0
+    spot = json.loads((repo / "tests/truth/spot/m01.json").read_text())
+    assert spot["rows"] and (repo / f"runs/truth/m01/spot_row{spot['rows'][0]}.png").exists()
+    row = spot["rows"][0]
+    assert main(["truth", "spot", "m01", "--row", row, "--moment", "ok", "--kind", "ok",
+                 "--place", "unsure", "--team", "ok"]) == 0
+
+    assert main(["truth", "report"]) == 1  # far from done: STOP
+    assert "**Verdict:** STOP" in (repo / "tests/truth/p0_report.md").read_text(encoding="utf-8")

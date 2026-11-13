@@ -114,6 +114,9 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.add_argument("source", choices=["metrica"])
     fetch.add_argument("--game", type=int, action="append", help="Metrica sample game (default 1 and 2)")
     fetch.set_defaults(func=_data_fetch)
+    from spv.truth.cli import register_truth
+
+    register_truth(sub)
     return parser
 
 
