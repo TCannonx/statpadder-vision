@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import replace
 
 from spv.truth.events import TruthEvent, zone
@@ -92,13 +93,23 @@ def score_match(
     pred: list[TruthEvent],
     offsets: dict[int, float],
     mapping: dict[str, str] | None,
+    halves: list[int] | None = None,
+    teams_given: bool = False,
 ) -> dict:
-    truth_v = to_video(truth, offsets)
+    """Score only the halves the prediction covers (or the given ones). An empty mapping counts as unverified."""
+    scored = sorted(set(halves) if halves is not None else {e.half for e in pred})
+    truth_v = to_video([e for e in truth if e.half in scored], offsets)
+    pred = [e for e in pred if e.half in scored]
+    if not mapping:
+        label = "unverified"
+    else:
+        label = "given" if teams_given else "by name"
     return {
         "at_2s": per_group(truth_v, pred, 2.0),
         "at_5s": per_group(truth_v, pred, 5.0),
-        "accuracy": accuracy(match(truth_v, pred, 5.0), {"A": "A", "B": "B"} if mapping is None else mapping),
-        "team_mapping": "unverified" if mapping is None else "by name",
+        "accuracy": accuracy(match(truth_v, pred, 5.0), mapping or {"A": "A", "B": "B"}),
+        "team_mapping": label,
+        "halves": scored,
     }
 
 
@@ -115,7 +126,13 @@ def bar(result: dict) -> list[dict]:
         rows.append((f"{g} precision", at[g]["precision"], 0.70))
     rows.append(("team", _ratio(acc["team_right"], acc["team_of"]), 0.90))
     rows.append(("zone", _ratio(acc["zone_right"], acc["zone_of"]), 0.70))
-    return [{"test": t, "value": v, "need": n, "pass": v is not None and v >= n} for t, v, n in rows]
+    out = [{"test": t, "value": v, "need": n, "pass": v is not None and v >= n} for t, v, n in rows]
+    if result["team_mapping"] == "unverified":
+        for r in out:
+            if r["test"] == "team":
+                r["pass"] = False
+                r["note"] = "team mapping unverified"
+    return out
 
 
 def pool(results: list[dict]) -> dict:
@@ -129,12 +146,13 @@ def pool(results: list[dict]) -> dict:
             groups[g] = {"truth": n, "pred": m, "matched": k, "recall": _ratio(k, n), "precision": _ratio(k, m)}
         out[key] = groups
     out["accuracy"] = {f: sum(r["accuracy"][f] for r in results) for f in ("team_right", "team_of", "zone_right", "zone_of")}
-    out["team_mapping"] = "unverified" if any(r["team_mapping"] == "unverified" for r in results) else "by name"
+    kinds = {r["team_mapping"] for r in results}
+    out["team_mapping"] = "unverified" if "unverified" in kinds else ("given" if "given" in kinds else "by name")
     return out
 
 
 def _pct(v: float | None) -> str:
-    return "-" if v is None else f"{v * 100:.0f}%"
+    return "-" if v is None else f"{math.floor(v * 100 + 1e-9)}%"
 
 
 def score_markdown(match_id: str, label: str, result: dict) -> str:
@@ -157,6 +175,7 @@ def score_markdown(match_id: str, label: str, result: dict) -> str:
         f"({_pct(_ratio(acc['team_right'], acc['team_of']))}), "
         f"zone {acc['zone_right']}/{acc['zone_of']} ({_pct(_ratio(acc['zone_right'], acc['zone_of']))}). "
         f"Team mapping: {result['team_mapping']}.",
+        *([f"halves scored: {', '.join(str(h) for h in result['halves'])}"] if result.get("halves") else []),
         "",
         "## Bar (at 5s)",
         "",
@@ -165,5 +184,6 @@ def score_markdown(match_id: str, label: str, result: dict) -> str:
     ]
     for r in bar(result):
         value = "n/a (no events)" if r["value"] is None else _pct(r["value"])
-        lines.append(f"| {r['test']} | {value} | {_pct(r['need'])} | {'PASS' if r['pass'] else 'FAIL'} |")
+        verdict = "unverified" if r.get("note") else ("PASS" if r["pass"] else "FAIL")
+        lines.append(f"| {r['test']} | {value} | {_pct(r['need'])} | {verdict} |")
     return "\n".join(lines) + "\n"

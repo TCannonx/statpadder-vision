@@ -150,3 +150,25 @@ def test_truth_score_applies_saved_offsets(repo, tiny_video, capsys):
 
     assert shot_matches(shifted, "shifted") == (2, 2)
     assert shot_matches(events, "plain") == (1, 2)
+
+
+def test_truth_score_halves_teams_and_refusal(repo, tiny_video, capsys):
+    events = repo / "e.csv"
+    events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
+    assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
+    capsys.readouterr()
+    base = ["truth", "score", "m01", str(events), "--assume-zero-offset"]
+    assert main(base + ["--label", "h2", "--half", "2"]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith("pred: ") and "events read" in out and "halves scored: 2" in out
+    assert json.loads((repo / "tests/truth/score/m01-h2.json").read_text())["halves"] == [2]
+    assert main(base + ["--label", "sw", "--teams", "swapped"]) == 0
+    result = json.loads((repo / "tests/truth/score/m01-sw.json").read_text())
+    assert result["team_mapping"] == "given" and result["accuracy"]["team_right"] == 0
+    assert main(base + ["--label", "sa", "--teams", "same"]) == 0
+    assert json.loads((repo / "tests/truth/score/m01-sa.json").read_text())["accuracy"]["team_right"] > 0
+    empty = repo / "empty.csv"
+    empty.write_text(EYEBALL_TIMED.splitlines()[0] + "\n", encoding="utf-8-sig")
+    capsys.readouterr()
+    assert main(["truth", "score", "m01", str(empty), "--label", "none", "--assume-zero-offset"]) == 1
+    assert "bar group" in capsys.readouterr().err

@@ -163,8 +163,41 @@ def test_markdown():
     assert "90%" in md and "PASS" in md and "FAIL" in md and "-" in md
 
 
-def test_empty_mapping_is_not_by_name():
+def test_empty_mapping_is_unverified():
     from spv.truth.score import score_match
 
-    assert score_match([ev("a", 10)], [ev("p", 10)], {}, {})["team_mapping"] == "by name"
+    assert score_match([ev("a", 10)], [ev("p", 10)], {}, {})["team_mapping"] == "unverified"
     assert score_match([ev("a", 10)], [ev("p", 10)], {}, None)["team_mapping"] == "unverified"
+
+
+def test_halves_covered_only():
+    from spv.truth.score import score_match
+
+    truth = [ev("a", 10, half=1), ev("b", 20, half=2)]
+    r = score_match(truth, [ev("p", 10, half=1)], {}, {"A": "A", "B": "B"})
+    assert r["halves"] == [1] and r["at_5s"]["goal"]["recall"] == 1.0
+    both = [ev("p", 10, half=1), ev("q", 20, half=2)]
+    r = score_match(truth, both, {}, {"A": "A"})
+    assert r["halves"] == [1, 2] and r["at_5s"]["goal"]["truth"] == 2
+    r = score_match(truth, both, {}, {"A": "A"}, halves=[2])
+    assert r["halves"] == [2] and r["at_5s"]["goal"]["truth"] == 1 and r["at_5s"]["goal"]["pred"] == 1
+
+
+def test_given_mapping_and_unverified_bar():
+    from spv.truth.score import bar, score_markdown, score_match
+
+    r = score_match([ev("a", 10)], [ev("p", 10)], {}, {"A": "A", "B": "B"}, teams_given=True)
+    assert r["team_mapping"] == "given"
+    r = _res(mapping="unverified")
+    team = [x for x in bar(r) if x["test"] == "team"][0]
+    assert team["value"] == 0.9 and team["pass"] is False and team["note"] == "team mapping unverified"
+    assert "| team | 90% | 90% | unverified |" in score_markdown("m01", "x", r)
+    r = _res()
+    r["halves"] = [1, 2]
+    assert "halves scored: 1, 2" in score_markdown("m01", "x", r)
+
+
+def test_pct_floors():
+    from spv.truth.score import _pct
+
+    assert _pct(0.695) == "69%" and _pct(0.9) == "90%" and _pct(0.29) == "29%" and _pct(1.0) == "100%"
