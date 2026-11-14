@@ -161,3 +161,10 @@ def test_markdown():
     for name in ("goal recall", "corner precision", "shot recall", "team", "zone", "free_kick_final_third"):
         assert name in md
     assert "90%" in md and "PASS" in md and "FAIL" in md and "-" in md
+
+
+def test_empty_mapping_is_not_by_name():
+    from spv.truth.score import score_match
+
+    assert score_match([ev("a", 10)], [ev("p", 10)], {}, {})["team_mapping"] == "by name"
+    assert score_match([ev("a", 10)], [ev("p", 10)], {}, None)["team_mapping"] == "unverified"

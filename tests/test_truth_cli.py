@@ -100,3 +100,22 @@ def test_untestable_needs_a_reason(repo, tiny_video, capsys):
     assert main(["truth", "untestable", "m01", "--reason", "  "]) == 1
     assert "reason" in capsys.readouterr().err
     assert not (repo / "tests/truth/untestable.json").exists()
+
+
+def test_truth_score(repo, tiny_video, capsys):
+    events = repo / "e.csv"
+    events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
+    assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
+    capsys.readouterr()
+    assert main(["truth", "score", "m01", str(events), "--label", "self"]) == 0
+    out = capsys.readouterr().out
+    assert "PASS" in out
+    assert all("| - |" in line for line in out.splitlines() if "| FAIL |" in line)  # only groups with no events
+    result = json.loads((repo / "tests/truth/score/m01-self.json").read_text())
+    assert result["team_mapping"] == "by name" and "e.csv" not in json.dumps(result)
+    assert (repo / "tests/truth/score/m01-self.md").exists()
+    assert main(["truth", "score", "m01", str(events), "--label", "Bad Label"]) == 1
+    assert main(["truth", "score", "m09", str(events), "--label", "self"]) == 1
+    assert main(["truth", "score-pool", "--label", "none"]) == 1
+    assert main(["truth", "score-pool", "--label", "self"]) == 0
+    assert (repo / "tests/truth/score/pool-self.md").exists()

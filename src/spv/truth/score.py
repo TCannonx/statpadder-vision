@@ -97,7 +97,7 @@ def score_match(
     return {
         "at_2s": per_group(truth_v, pred, 2.0),
         "at_5s": per_group(truth_v, pred, 5.0),
-        "accuracy": accuracy(match(truth_v, pred, 5.0), mapping or {"A": "A", "B": "B"}),
+        "accuracy": accuracy(match(truth_v, pred, 5.0), {"A": "A", "B": "B"} if mapping is None else mapping),
         "team_mapping": "unverified" if mapping is None else "by name",
     }
 

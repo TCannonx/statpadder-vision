@@ -232,6 +232,57 @@ def _load_spot(match_id: str) -> dict:
     return load_spot(match_id)
 
 
+def _score_dir() -> Path:
+    return truth_dir() / "score"
+
+
+def _label(label: str) -> str:
+    import re
+
+    if not re.fullmatch(r"[a-z0-9-]{1,40}", label):
+        raise ValueError("--label must be 1-40 characters: lower-case letters, digits, hyphens")
+    return label
+
+
+def _score(a) -> int:
+    from spv.truth.align import half_offset, load_alignment
+    from spv.truth.events import read_events, team_names
+    from spv.truth.registry import registered
+    from spv.truth.score import score_markdown, score_match, team_map
+
+    label = _label(a.label)
+    matches = registered()
+    if a.match not in matches:
+        raise ValueError(f"{a.match} is not registered: run spv truth add first")
+    truth_path, pred_path = Path(matches[a.match]["events"]), Path(a.pred)
+    truth, pred = read_events(truth_path).events, read_events(pred_path).events
+    alignment = load_alignment(a.match)
+    offsets = {h: half_offset(alignment, h) or 0.0 for h in (1, 2)}
+    mapping = team_map(team_names(truth_path), team_names(pred_path))
+    result = score_match(truth, pred, offsets, mapping)
+    text = score_markdown(a.match, label, result)
+    out = _score_dir()
+    out.mkdir(parents=True, exist_ok=True)
+    (out / f"{a.match}-{label}.json").write_text(json.dumps(result, indent=1, sort_keys=True) + "\n",
+                                                        encoding="utf-8")
+    (out / f"{a.match}-{label}.md").write_text(text, encoding="utf-8")
+    print(text)
+    return 0
+
+
+def _score_pool(a) -> int:
+    from spv.truth.score import pool, score_markdown
+
+    label = _label(a.label)
+    files = sorted(_score_dir().glob(f"m*-{label}.json"))
+    if not files:
+        raise ValueError(f"no scores with label {label}: run spv truth score first")
+    text = score_markdown("pool", label, pool([json.loads(f.read_text(encoding="utf-8")) for f in files]))
+    (_score_dir() / f"pool-{label}.md").write_text(text, encoding="utf-8")
+    print(text)
+    return 0
+
+
 def _guarded(func):
     def run(args: argparse.Namespace) -> int:
         try:
@@ -286,3 +337,8 @@ def register_truth(sub: argparse._SubParsersAction) -> None:
     p = command("untestable", "record that a P0 match cannot be judged on its footage", _untestable)
     p.add_argument("--reason", required=True)
     command("report", "write tests/truth/p0_report.md with the go / stop verdict", _report, match=False)
+    p = command("score", "score a prediction file against a match's truth", _score)
+    p.add_argument("pred", type=Path)
+    p.add_argument("--label", required=True)
+    p = command("score-pool", "pool every score with a label", _score_pool, match=False)
+    p.add_argument("--label", required=True)
