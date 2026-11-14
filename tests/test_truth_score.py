@@ -62,3 +62,29 @@ def test_determinism_and_tiebreak():
     first = match(t, p, 5)
     assert first == match(list(reversed(t)), list(reversed(p)), 5)
     assert [(a.row_id, b.row_id) for a, b in first] == [("a", "p"), ("b", "q")]
+
+
+def test_team_map():
+    from spv.truth.score import team_map
+
+    assert team_map(["Alpha FC", "Beta"], ["alpha  fc", "BETA"]) == {"A": "A", "B": "B"}
+    assert team_map(["Alpha", "Beta"], ["Beta United", "Alpha"]) == {"A": "B", "B": "A"}
+    assert team_map(["Alpha", "Beta"], ["Us", "Them"]) is None
+    assert team_map(["Alpha", "Beta"], ["Alpha", "Gamma"]) is None
+    assert team_map(["Alpha", "Beta"], []) is None
+
+
+def test_accuracy():
+    from spv.truth.score import accuracy
+
+    def e(rid, team, x, y):
+        return TruthEvent(rid, 1, 1.0, "goal", team, x, y)
+
+    pairs = [
+        (e("a", "A", 0.9, 0.5), e("p", "A", 0.8, 0.5)),  # team right, zone right
+        (e("b", "B", 0.9, 0.1), e("q", "A", 0.2, 0.1)),  # team wrong, zone wrong
+        (e("c", "A", None, None), e("r", "A", 0.5, 0.5)),  # no place
+    ]
+    assert accuracy(pairs, {"A": "A", "B": "B"}) == {"team_right": 2, "team_of": 3, "zone_right": 1, "zone_of": 2}
+    # swapped mapping: pred A -> truth B
+    assert accuracy(pairs, {"A": "B", "B": "A"}) == {"team_right": 1, "team_of": 3, "zone_right": 1, "zone_of": 2}
