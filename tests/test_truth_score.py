@@ -88,3 +88,76 @@ def test_accuracy():
     assert accuracy(pairs, {"A": "A", "B": "B"}) == {"team_right": 2, "team_of": 3, "zone_right": 1, "zone_of": 2}
     # swapped mapping: pred A -> truth B
     assert accuracy(pairs, {"A": "B", "B": "A"}) == {"team_right": 1, "team_of": 3, "zone_right": 1, "zone_of": 2}
+
+
+def _res(goal=(10, 10, 9), other=(4, 4, 3), acc=(9, 10, 7, 10), mapping="by name"):
+    def grp(n, m, k):
+        return {"truth": n, "pred": m, "matched": k, "recall": k / n if n else None, "precision": k / m if m else None}
+
+    at = {"goal": grp(*goal)}
+    for g in ("corner", "free_kick_final_third", "shot"):
+        at[g] = grp(*other)
+    return {
+        "at_2s": at,
+        "at_5s": at,
+        "accuracy": {"team_right": acc[0], "team_of": acc[1], "zone_right": acc[2], "zone_of": acc[3]},
+        "team_mapping": mapping,
+    }
+
+
+def test_score_match():
+    from spv.truth.score import score_match
+
+    r = score_match([ev("a", 10)], [ev("p", 13)], {1: 0.0}, None)
+    assert r["at_2s"]["goal"]["matched"] == 0 and r["at_5s"]["goal"]["matched"] == 1
+    assert r["accuracy"]["team_of"] == 1 and r["accuracy"]["team_right"] == 1
+    assert r["team_mapping"] == "unverified"
+    r = score_match([ev("a", 10)], [ev("p", 10, team="B")], {1: 0.0}, {"A": "B", "B": "A"})
+    assert r["team_mapping"] == "by name" and r["accuracy"]["team_right"] == 1
+    r = score_match([ev("a", 10)], [ev("p", 15)], {1: 5.0}, None)
+    assert r["at_2s"]["goal"]["matched"] == 1
+
+
+def test_bar_edges_pass():
+    from spv.truth.score import bar
+
+    rows = bar(_res())
+    assert len(rows) == 1 + 3 * 2 + 2
+    assert all(set(r) == {"test", "value", "need", "pass"} for r in rows)
+    assert [r["pass"] for r in rows] == [True] * 9
+    # precision exactly 0.70 passes, just under fails
+    assert all(r["pass"] for r in bar(_res(other=(9, 10, 7))))
+    assert not all(r["pass"] for r in bar(_res(other=(90, 100, 69))))
+
+
+def test_bar_fail_and_none():
+    from spv.truth.score import bar
+
+    rows = {r["test"]: r for r in bar(_res(goal=(10, 10, 8)))}
+    assert not rows["goal recall"]["pass"]
+    rows = {r["test"]: r for r in bar(_res(goal=(0, 0, 0), acc=(0, 0, 0, 0)))}
+    assert rows["goal recall"]["value"] is None and not rows["goal recall"]["pass"]
+    assert not rows["team"]["pass"] and not rows["zone"]["pass"]
+    rows = {r["test"]: r for r in bar(_res(acc=(8, 10, 7, 10)))}
+    assert not rows["team"]["pass"] and rows["zone"]["pass"]
+
+
+def test_pool():
+    from spv.truth.score import pool
+
+    p = pool([_res(goal=(10, 10, 9), acc=(9, 10, 7, 10)), _res(goal=(10, 20, 8), acc=(5, 10, 3, 5), mapping="unverified")])
+    g = p["at_5s"]["goal"]
+    assert g == {"truth": 20, "pred": 30, "matched": 17, "recall": 17 / 20, "precision": 17 / 30}
+    assert p["accuracy"] == {"team_right": 14, "team_of": 20, "zone_right": 10, "zone_of": 15}
+    assert p["team_mapping"] == "unverified"
+    assert pool([_res(), _res()])["team_mapping"] == "by name"
+
+
+def test_markdown():
+    from spv.truth.score import score_markdown
+
+    md = score_markdown("m01", "held-out", _res(goal=(0, 0, 0)))
+    assert "m01" in md and "held-out" in md
+    for name in ("goal recall", "corner precision", "shot recall", "team", "zone", "free_kick_final_third"):
+        assert name in md
+    assert "90%" in md and "PASS" in md and "FAIL" in md and "-" in md

@@ -85,3 +85,84 @@ def accuracy(pairs: list[tuple[TruthEvent, TruthEvent]], mapping: dict[str, str]
             if zone(t.x, t.y) == zone(p.x, p.y):
                 zone_right += 1
     return {"team_right": team_right, "team_of": len(pairs), "zone_right": zone_right, "zone_of": zone_of}
+
+
+def score_match(
+    truth: list[TruthEvent],
+    pred: list[TruthEvent],
+    offsets: dict[int, float],
+    mapping: dict[str, str] | None,
+) -> dict:
+    truth_v = to_video(truth, offsets)
+    return {
+        "at_2s": per_group(truth_v, pred, 2.0),
+        "at_5s": per_group(truth_v, pred, 5.0),
+        "accuracy": accuracy(match(truth_v, pred, 5.0), mapping or {"A": "A", "B": "B"}),
+        "team_mapping": "unverified" if mapping is None else "by name",
+    }
+
+
+def _ratio(k: int, n: int) -> float | None:
+    return k / n if n else None
+
+
+def bar(result: dict) -> list[dict]:
+    at = result["at_5s"]
+    acc = result["accuracy"]
+    rows: list[tuple[str, float | None, float]] = [("goal recall", at["goal"]["recall"], 0.90)]
+    for g in BAR_KINDS[1:]:
+        rows.append((f"{g} recall", at[g]["recall"], 0.75))
+        rows.append((f"{g} precision", at[g]["precision"], 0.70))
+    rows.append(("team", _ratio(acc["team_right"], acc["team_of"]), 0.90))
+    rows.append(("zone", _ratio(acc["zone_right"], acc["zone_of"]), 0.70))
+    return [{"test": t, "value": v, "need": n, "pass": v is not None and v >= n} for t, v, n in rows]
+
+
+def pool(results: list[dict]) -> dict:
+    out: dict = {}
+    for key in ("at_2s", "at_5s"):
+        groups = {}
+        for g in BAR_KINDS:
+            n = sum(r[key][g]["truth"] for r in results)
+            m = sum(r[key][g]["pred"] for r in results)
+            k = sum(r[key][g]["matched"] for r in results)
+            groups[g] = {"truth": n, "pred": m, "matched": k, "recall": _ratio(k, n), "precision": _ratio(k, m)}
+        out[key] = groups
+    out["accuracy"] = {f: sum(r["accuracy"][f] for r in results) for f in ("team_right", "team_of", "zone_right", "zone_of")}
+    out["team_mapping"] = "unverified" if any(r["team_mapping"] == "unverified" for r in results) else "by name"
+    return out
+
+
+def _pct(v: float | None) -> str:
+    return "-" if v is None else f"{v * 100:.0f}%"
+
+
+def score_markdown(match_id: str, label: str, result: dict) -> str:
+    lines = [
+        f"# Score {match_id} ({label})",
+        "",
+        "| group | truth | predicted | matched | recall 2s | precision 2s | recall 5s | precision 5s |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for g in BAR_KINDS:
+        a, b = result["at_2s"][g], result["at_5s"][g]
+        lines.append(
+            f"| {g} | {b['truth']} | {b['pred']} | {b['matched']} | "
+            f"{_pct(a['recall'])} | {_pct(a['precision'])} | {_pct(b['recall'])} | {_pct(b['precision'])} |"
+        )
+    acc = result["accuracy"]
+    lines += [
+        "",
+        f"Accuracy at 5s: team {acc['team_right']}/{acc['team_of']} "
+        f"({_pct(_ratio(acc['team_right'], acc['team_of']))}), "
+        f"zone {acc['zone_right']}/{acc['zone_of']} ({_pct(_ratio(acc['zone_right'], acc['zone_of']))}). "
+        f"Team mapping: {result['team_mapping']}.",
+        "",
+        "## Bar (at 5s)",
+        "",
+        "| test | value | need | result |",
+        "| --- | --- | --- | --- |",
+    ]
+    for r in bar(result):
+        lines.append(f"| {r['test']} | {_pct(r['value'])} | {_pct(r['need'])} | {'PASS' if r['pass'] else 'FAIL'} |")
+    return "\n".join(lines) + "\n"
