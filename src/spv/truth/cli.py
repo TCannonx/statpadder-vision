@@ -257,7 +257,12 @@ def _score(a) -> int:
     truth_path, pred_path = Path(matches[a.match]["events"]), Path(a.pred)
     truth, pred = read_events(truth_path).events, read_events(pred_path).events
     alignment = load_alignment(a.match)
-    offsets = {h: half_offset(alignment, h) or 0.0 for h in (1, 2)}
+    saved = {h: half_offset(alignment, h) for h in (1, 2)}
+    unaligned = [h for h in (1, 2) if saved[h] is None]
+    if unaligned and not a.assume_zero_offset:
+        raise ValueError(f"half {unaligned[0]} of {a.match} has no saved offset: run spv truth mark, "
+                         "or pass --assume-zero-offset")
+    offsets = {h: 0.0 if v is None else v for h, v in saved.items()}
     mapping = team_map(team_names(truth_path), team_names(pred_path))
     result = score_match(truth, pred, offsets, mapping)
     text = score_markdown(a.match, label, result)
@@ -274,7 +279,10 @@ def _score_pool(a) -> int:
     from spv.truth.score import pool, score_markdown
 
     label = _label(a.label)
-    files = sorted(_score_dir().glob(f"m*-{label}.json"))
+    import re
+
+    pattern = re.compile(r"m\d{2}-" + re.escape(label) + r"\.json")
+    files = sorted(f for f in _score_dir().glob("*.json") if pattern.fullmatch(f.name))
     if not files:
         raise ValueError(f"no scores with label {label}: run spv truth score first")
     text = score_markdown("pool", label, pool([json.loads(f.read_text(encoding="utf-8")) for f in files]))
@@ -340,5 +348,7 @@ def register_truth(sub: argparse._SubParsersAction) -> None:
     p = command("score", "score a prediction file against a match's truth", _score)
     p.add_argument("pred", type=Path)
     p.add_argument("--label", required=True)
+    p.add_argument("--assume-zero-offset", action="store_true",
+                   help="score even though a half has no saved offset (treated as 0 s)")
     p = command("score-pool", "pool every score with a label", _score_pool, match=False)
     p.add_argument("--label", required=True)

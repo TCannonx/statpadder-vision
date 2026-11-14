@@ -107,15 +107,46 @@ def test_truth_score(repo, tiny_video, capsys):
     events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
     assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
     capsys.readouterr()
-    assert main(["truth", "score", "m01", str(events), "--label", "self"]) == 0
+    assert main(["truth", "score", "m01", str(events), "--label", "self"]) == 1  # no offsets saved
+    assert "half 1" in capsys.readouterr().err
+    assert not (repo / "tests/truth/score/m01-self.json").exists()
+    assert main(["truth", "score", "m01", str(events), "--label", "self", "--assume-zero-offset"]) == 0
     out = capsys.readouterr().out
     assert "PASS" in out
-    assert all("| - |" in line for line in out.splitlines() if "| FAIL |" in line)  # only groups with no events
+    for line in out.splitlines():
+        if line.startswith("| ") and line.endswith("| FAIL |"):
+            assert "n/a (no events)" in line  # only groups with no events fail
+        if line.startswith(("| goal recall", "| shot recall", "| shot precision", "| team", "| zone")):
+            assert line.endswith("| PASS |"), line
     result = json.loads((repo / "tests/truth/score/m01-self.json").read_text())
     assert result["team_mapping"] == "by name" and "e.csv" not in json.dumps(result)
     assert (repo / "tests/truth/score/m01-self.md").exists()
     assert main(["truth", "score", "m01", str(events), "--label", "Bad Label"]) == 1
     assert main(["truth", "score", "m09", str(events), "--label", "self"]) == 1
     assert main(["truth", "score-pool", "--label", "none"]) == 1
+    (repo / "tests/truth/score/m01-pre-self.json").write_text("not json", encoding="utf-8")
     assert main(["truth", "score-pool", "--label", "self"]) == 0
     assert (repo / "tests/truth/score/pool-self.md").exists()
+
+
+def test_truth_score_applies_saved_offsets(repo, tiny_video, capsys):
+    from spv.truth.align import add_mark, save_alignment
+
+    events = repo / "e.csv"
+    events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
+    assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
+    save_alignment("m01", {"marks": [], "kits": {}, "attack_marks": []}, repo)
+    data = {"marks": [], "kits": {}, "attack_marks": []}
+    add_mark(data, 1, "4", "shot", 0.0)  # a real 0.0 offset counts as aligned
+    add_mark(data, 2, "10", "shot", 30.0)
+    save_alignment("m01", data, repo)
+    shifted = repo / "shifted.csv"
+    shifted.write_text(EYEBALL_TIMED.replace(";3100.0;", ";3130.0;"), encoding="utf-8-sig")
+
+    def shot_matches(pred, label):
+        assert main(["truth", "score", "m01", str(pred), "--label", label]) == 0
+        result = json.loads((repo / f"tests/truth/score/m01-{label}.json").read_text())
+        return result["at_5s"]["shot"]["matched"], result["at_5s"]["shot"]["truth"]
+
+    assert shot_matches(shifted, "shifted") == (2, 2)
+    assert shot_matches(events, "plain") == (1, 2)

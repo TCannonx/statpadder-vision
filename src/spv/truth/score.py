@@ -164,5 +164,6 @@ def score_markdown(match_id: str, label: str, result: dict) -> str:
         "| --- | --- | --- | --- |",
     ]
     for r in bar(result):
-        lines.append(f"| {r['test']} | {_pct(r['value'])} | {_pct(r['need'])} | {'PASS' if r['pass'] else 'FAIL'} |")
+        value = "n/a (no events)" if r["value"] is None else _pct(r["value"])
+        lines.append(f"| {r['test']} | {value} | {_pct(r['need'])} | {'PASS' if r['pass'] else 'FAIL'} |")
     return "\n".join(lines) + "\n"
