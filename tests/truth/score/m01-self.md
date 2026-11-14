@@ -8,6 +8,7 @@
 | shot | 16 | 16 | 16 | 100% | 100% | 100% | 100% |
 
 Accuracy at 5s: team 35/35 (100%), zone 35/35 (100%). Team mapping: by name.
+halves scored: 1, 2
 
 ## Bar (at 5s)
 

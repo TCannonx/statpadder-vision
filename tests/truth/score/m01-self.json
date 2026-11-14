@@ -65,5 +65,9 @@
    "truth": 16
   }
  },
+ "halves": [
+  1,
+  2
+ ],
  "team_mapping": "by name"
 }
