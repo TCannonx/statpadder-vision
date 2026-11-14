@@ -128,7 +128,7 @@ def _spots(a) -> int:
     from spv.truth.align import half_offset, load_alignment
     from spv.truth.events import zone
     from spv.truth.frames import clock, contact_sheet, offsets
-    from spv.truth.spot import load_spot, sample_spot_rows, save_spot
+    from spv.truth.spot import load_spot, sample_spot_rows, save_spot, top_up
 
     match, events = _match(a.match)
     alignment = load_alignment(a.match)
@@ -140,8 +140,15 @@ def _spots(a) -> int:
     if not data["rows"]:
         data["rows"] = sample_spot_rows(list(events.values()))
         save_spot(a.match, data)
+        sheet_rows = data["rows"]
+    else:
+        sheet_rows = top_up(data, list(events.values()), exclude={m["row"] for m in alignment["marks"]})
+        if not sheet_rows:
+            print("no rows to add")
+            return 0
+        save_spot(a.match, data)
     kits = alignment.get("kits", {})
-    for row in data["rows"]:
+    for row in sheet_rows:
         e = events[row]
         steps = offsets("-2:2:1")
         times = [e.video_s + base[e.half] + s for s in steps]
@@ -175,7 +182,13 @@ def _report(a) -> int:
         raise ValueError("no split yet: run spv truth split first")
     results = {m: match_result(load_alignment(m), _load_spot(m)) for m in split["p0"]}
     text = p0_report(results)
-    (truth_dir() / "p0_report.md").write_text(text, encoding="utf-8")
+    path = truth_dir() / "p0_report.md"
+    if path.exists():
+        old = path.read_text(encoding="utf-8").splitlines(keepends=True)
+        notes = next((i for i, line in enumerate(old) if line.strip() == "## Notes"), None)
+        if notes is not None:
+            text += "\n" + "".join(old[notes:])
+    path.write_text(text, encoding="utf-8")
     print(text)
     return 0 if results and all(r["usable"] for r in results.values()) else 1
 
@@ -232,7 +245,7 @@ def register_truth(sub: argparse._SubParsersAction) -> None:
     command("spots", "choose the 20 spot-check rows and make their sheets", _spots)
     p = command("spot", "record a spot-check verdict", _spot)
     p.add_argument("--row", required=True)
-    p.add_argument("--moment", choices=["ok", "off"], required=True)
+    p.add_argument("--moment", choices=["ok", "off", "unseen"], required=True)
     p.add_argument("--kind", choices=["ok", "wrong"], required=True)
     p.add_argument("--place", choices=["ok", "wrong", "unsure"], required=True)
     p.add_argument("--team", choices=["ok", "wrong", "unsure"], required=True)

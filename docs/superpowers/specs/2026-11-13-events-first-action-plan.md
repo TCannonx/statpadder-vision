@@ -56,7 +56,7 @@ An independent review of `feature/02-camera` (8e7fb19) found:
 | Minors and AI | "Whatever is necessary for best results." Short clips or the whole match may go to a hosted model. Still required: the provider's terms must keep the data out of training, confirmed for the provider and plan before the first real upload; no names in requests or file names; and the Privacy Notice line about match video being processed this way. This replaces the 2026-10-09 frames-only rule. |
 | Labelling | **None by Thomas.** Training data comes from public labelled datasets, his existing event files, and automatic labels. |
 | AI spend | Not capped up front. The proof of concept measures accuracy against cost, and Thomas decides from those numbers. |
-| Machine | The RTX 2060 computer, where the clips, event files and `D:/spv-data` live. Building and running happen there. |
+| Machine | The RTX 2060 computer, where the clips, event files and `<data folder>` live. Building and running happen there. |
 | Turnaround | Overnight is fine. Accuracy and value come before speed. |
 | Priorities | Not given. Claude's default, for Thomas to change: (1) restarts, (2) shots and goals, (3) possession by team and third, (4) the team on every event, (5) passes, (6) tracking of visible players, (7) player names. The proof of concept covers (1) and (2) only. |
 

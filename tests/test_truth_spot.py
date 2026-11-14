@@ -3,7 +3,8 @@ from collections import Counter
 import pytest
 
 from spv.truth.events import TruthEvent
-from spv.truth.spot import load_spot, record_verdict, sample_spot_rows, save_spot, spot_score
+from spv.truth.spot import (judged_rows, load_spot, record_verdict, sample_spot_rows, save_spot, spot_score,
+                            top_up)
 
 
 def _events(kinds):
@@ -38,3 +39,44 @@ def test_verdicts_and_score(tmp_path):
     save_spot("m01", d, tmp_path)
     assert load_spot("m01", tmp_path) == d
     assert load_spot("m02", tmp_path) == {"rows": [], "verdicts": {}}
+
+
+def test_unseen_is_accepted_and_ignored_by_the_score():
+    d = {"rows": ["1", "2", "3"], "verdicts": {}}
+    record_verdict(d, "1", moment="ok", kind="ok", place="ok", team="ok")
+    record_verdict(d, "2", moment="unseen", kind="ok", place="unsure", team="ok")
+    record_verdict(d, "3", moment="off", kind="ok", place="ok", team="ok")
+    assert judged_rows(d) == ["1", "3"]
+    assert spot_score(d) == (1, 2, 2)
+    with pytest.raises(ValueError):
+        record_verdict(d, "3", moment="unseen", kind="maybe", place="ok", team="ok")
+    with pytest.raises(ValueError):
+        record_verdict(d, "3", moment="gone", kind="ok", place="ok", team="ok")
+
+
+def _unseen(rows, *unseen):
+    d = {"rows": list(rows), "verdicts": {}}
+    for r in unseen:
+        record_verdict(d, r, moment="unseen", kind="ok", place="ok", team="ok")
+    return d
+
+
+def test_top_up_prefers_same_kind_nearest_in_time():
+    events = _events(["corner", "corner", "shot", "corner", "corner", "goal"])
+    d = _unseen(["1"], "1")
+    assert top_up(d, events, n=1) == ["0"]
+    assert d["rows"] == ["1", "0"]
+    assert top_up(_unseen(["1"], "1"), events, exclude={"0"}, n=1) == ["3"]
+
+
+def test_top_up_falls_back_to_another_kind():
+    events = _events(["corner", "goal", "throw_in", "kick_off"])
+    assert top_up(_unseen(["0"], "0"), events, n=1) == ["2"]  # goal and kick_off are no fallback
+    assert top_up(_unseen(["0", "2"], "0"), events, n=2) == []
+
+
+def test_top_up_is_deterministic_and_idle_without_unseen():
+    events = _events(["corner"] * 6)
+    assert top_up({"rows": ["0", "1"], "verdicts": {}}, events) == []
+    assert top_up(_unseen(["2", "3"], "2", "3"), events) == top_up(_unseen(["2", "3"], "2", "3"), events)
+    assert len(top_up(_unseen(["2", "3"], "2", "3"), events)) == 2

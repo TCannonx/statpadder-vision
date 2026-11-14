@@ -51,3 +51,20 @@ def test_report_verdicts():
     assert "**Verdict:** GO" in p0_report({"m01": good, "m02": good, "m03": good})
     text = p0_report({"m01": good, "m02": bad})
     assert "**Verdict:** STOP" in text and "| m02 |" in text
+
+
+def test_unseen_rows_leave_too_few_visible_rows_until_topped_up():
+    d = _spots(18)
+    for row in ("18", "19"):
+        record_verdict(d, row, moment="unseen", kind="ok", place="ok", team="ok")
+    result = match_result(_aligned(), d)
+    assert not result["usable"]
+    assert result["reasons"] == ["spot checks: only 18 visible rows, need 20"]
+    assert result["unseen"] == 2
+    d["rows"] += ["20", "21"]
+    for row in ("20", "21"):
+        record_verdict(d, row, moment="ok", kind="ok", place="ok", team="ok")
+    result = match_result(_aligned(), d)
+    assert result["usable"], result["reasons"]
+    assert "Not visible (replaced)" in p0_report({"m01": result})
+    assert "| 20/20 | 2 |" in p0_report({"m01": result})

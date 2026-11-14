@@ -449,7 +449,7 @@ def test_add_and_inventory(tmp_path):
 def test_ids_are_anonymous(tmp_path):
     video, events = _files(tmp_path)
     with pytest.raises(ValueError):
-        add_match("bohs-u17", video, events, repo_root=tmp_path)
+        add_match("team-u17", video, events, repo_root=tmp_path)
 
 
 def test_missing_file_is_refused(tmp_path):
@@ -1261,7 +1261,7 @@ def test_truth_flow(repo, tiny_video, capsys):
     events = repo / "e.csv"
     events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
     assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
-    assert main(["truth", "add", "bohs", str(tiny_video), str(events)]) == 1
+    assert main(["truth", "add", "team", str(tiny_video), str(events)]) == 1
     assert main(["truth", "inventory"]) == 0
     assert "| m01 | eyeball |" in (repo / "tests/truth/inventory.md").read_text(encoding="utf-8")
     assert main(["truth", "split"]) == 0
@@ -1618,10 +1618,10 @@ This task makes judgements by eye. The executing agent opens each contact sheet 
 
 - [ ] **Step 1: Pair videos with event files**
 
-List the candidates (videos and event files live under `D:/spv-data` and `OneDrive/Bohs/...` on this machine):
+List the candidates (videos and event files live under `<data folder>` and `<club folder>/...` on this machine):
 
 ```bash
-find /d/spv-data "<personal OneDrive>/Bohs" -maxdepth 3 \( -iname "*.mp4" -o -iname "*.csv" \) 2>/dev/null
+find <data folder> "<club folder>" -maxdepth 3 \( -iname "*.mp4" -o -iname "*.csv" \) 2>/dev/null
 ```
 
 Pair each video with its event file by date and opponent in the names. Show Thomas the pairing as a numbered list (`m01: <video name> + <event file name>`) and get a yes before registering. Don't put the names anywhere in the repo.
