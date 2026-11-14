@@ -1,0 +1,146 @@
+{
+ "rows": [
+  "10",
+  "202",
+  "328",
+  "713",
+  "759",
+  "1127",
+  "1262",
+  "1291",
+  "1306",
+  "1496",
+  "1498",
+  "1746",
+  "1750",
+  "2118",
+  "2120",
+  "2121",
+  "2272",
+  "2382",
+  "2383",
+  "2483"
+ ],
+ "verdicts": {
+  "10": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1127": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1262": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1291": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1306": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1496": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1498": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "1746": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1750": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "202": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "2118": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2120": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "2121": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "2272": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2382": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2383": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2483": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "ok"
+  },
+  "328": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "713": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "759": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  }
+ }
+}

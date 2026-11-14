@@ -1,0 +1,94 @@
+{
+ "attack_marks": [
+  {
+   "goal": "left",
+   "half": 1,
+   "row": "713",
+   "team": "A"
+  },
+  {
+   "goal": "left",
+   "half": 1,
+   "row": "1223",
+   "team": "A"
+  },
+  {
+   "goal": "left",
+   "half": 1,
+   "row": "1291",
+   "team": "A"
+  },
+  {
+   "goal": "right",
+   "half": 2,
+   "row": "1491",
+   "team": "A"
+  },
+  {
+   "goal": "right",
+   "half": 2,
+   "row": "1746",
+   "team": "A"
+  },
+  {
+   "goal": "right",
+   "half": 2,
+   "row": "2110",
+   "team": "A"
+  }
+ ],
+ "kits": {
+  "A": "white shirts, white shorts",
+  "B": "maroon-red shirts, black shorts"
+ },
+ "marks": [
+  {
+   "half": 1,
+   "kind": "kick_off",
+   "offset_s": 0.0,
+   "row": "1"
+  },
+  {
+   "half": 2,
+   "kind": "kick_off",
+   "offset_s": 0.0,
+   "row": "1309"
+  },
+  {
+   "half": 1,
+   "kind": "corner",
+   "offset_s": 0.5,
+   "row": "713"
+  },
+  {
+   "half": 1,
+   "kind": "corner",
+   "offset_s": 0.5,
+   "row": "1223"
+  },
+  {
+   "half": 1,
+   "kind": "corner",
+   "offset_s": 0.5,
+   "row": "1291"
+  },
+  {
+   "half": 2,
+   "kind": "corner",
+   "offset_s": 0.5,
+   "row": "1491"
+  },
+  {
+   "half": 2,
+   "kind": "corner",
+   "offset_s": 0.5,
+   "row": "1746"
+  },
+  {
+   "half": 2,
+   "kind": "corner",
+   "offset_s": 0.5,
+   "row": "2110"
+  }
+ ]
+}

@@ -1,0 +1,146 @@
+{
+ "rows": [
+  "8",
+  "16",
+  "102",
+  "137",
+  "371",
+  "609",
+  "656",
+  "1171",
+  "1235",
+  "1319",
+  "1405",
+  "1602",
+  "1704",
+  "1819",
+  "1935",
+  "2143",
+  "2308",
+  "2330",
+  "2356",
+  "2384"
+ ],
+ "verdicts": {
+  "102": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1171": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1235": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "1319": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "137": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1405": {
+   "kind": "ok",
+   "moment": "off",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "16": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "1602": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1704": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1819": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "1935": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "2143": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2308": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "2330": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2356": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2384": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "371": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "609": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "656": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "8": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  }
+ }
+}

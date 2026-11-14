@@ -1,0 +1,82 @@
+{
+ "attack_marks": [
+  {
+   "goal": "right",
+   "half": 1,
+   "row": "893",
+   "team": "A"
+  },
+  {
+   "goal": "right",
+   "half": 1,
+   "row": "946",
+   "team": "A"
+  },
+  {
+   "goal": "right",
+   "half": 1,
+   "row": "1226",
+   "team": "A"
+  },
+  {
+   "goal": "left",
+   "half": 2,
+   "row": "1314",
+   "team": "A"
+  },
+  {
+   "goal": "left",
+   "half": 2,
+   "row": "2174",
+   "team": "A"
+  },
+  {
+   "goal": "left",
+   "half": 2,
+   "row": "2302",
+   "team": "A"
+  }
+ ],
+ "kits": {
+  "A": "not settled by eye (red-white chequered or white)",
+  "B": "not settled by eye"
+ },
+ "marks": [
+  {
+   "half": 1,
+   "kind": "kick_off",
+   "offset_s": 0.5,
+   "row": "1"
+  },
+  {
+   "half": 1,
+   "kind": "kick_off",
+   "offset_s": 0.5,
+   "row": "610"
+  },
+  {
+   "half": 1,
+   "kind": "kick_off",
+   "offset_s": 0.5,
+   "row": "898"
+  },
+  {
+   "half": 2,
+   "kind": "kick_off",
+   "offset_s": 0.5,
+   "row": "1235"
+  },
+  {
+   "half": 2,
+   "kind": "kick_off",
+   "offset_s": 0.5,
+   "row": "1820"
+  },
+  {
+   "half": 2,
+   "kind": "kick_off",
+   "offset_s": 0.5,
+   "row": "2103"
+  }
+ ]
+}
