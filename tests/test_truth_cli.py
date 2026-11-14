@@ -70,3 +70,23 @@ def test_truth_flow(repo, tiny_video, capsys):
     text = report.read_text(encoding="utf-8")
     assert "**Verdict:** STOP" in text and text.endswith("\n\n## Notes\n\nKept by hand.\n")
     assert "# old" not in text
+    assert main(["truth", "untestable", "m01", "--reason", "camera too far"]) == 0
+    stored = repo / "tests/truth/untestable.json"
+    assert json.loads(stored.read_text()) == {"m01": "camera too far"}
+    assert main(["truth", "untestable", "m09", "--reason", "x"]) == 1  # not registered
+    assert main(["truth", "report"]) == 1  # nothing testable left: STOP
+    text = report.read_text(encoding="utf-8")
+    assert "not testable: camera too far" in text and "excluded from the verdict" in text
+
+
+def test_untestable_rejects_a_match_outside_p0(repo, tiny_video):
+    events = repo / "e.csv"
+    events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
+    assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
+    for m in ("m02", "m03", "m04"):
+        assert main(["truth", "add", m, str(tiny_video), str(events)]) == 0
+    assert main(["truth", "split"]) == 0
+    p0 = json.loads((repo / "tests/truth/split.json").read_text())["p0"]
+    other = next(m for m in ("m01", "m02", "m03", "m04") if m not in p0)
+    assert main(["truth", "untestable", other, "--reason", "x"]) == 1
+    assert not (repo / "tests/truth/untestable.json").exists()

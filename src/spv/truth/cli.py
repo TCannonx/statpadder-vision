@@ -3,11 +3,23 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
 
 from spv import config
+from spv.truth import truth_dir
+from spv.truth.split import load_split
+
+
+def untestable_path() -> Path:
+    return truth_dir() / "untestable.json"
+
+
+def load_untestable() -> dict[str, str]:
+    path = untestable_path()
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
 def _match(match_id: str) -> tuple[dict, dict]:
@@ -176,14 +188,14 @@ def _spot(a) -> int:
 def _report(a) -> int:
     from spv.truth import truth_dir
     from spv.truth.align import load_alignment
-    from spv.truth.report import match_result, p0_report
-    from spv.truth.split import load_split
+    from spv.truth.report import MIN_TESTABLE, match_result, p0_report
 
     split = load_split()
     if not split:
         raise ValueError("no split yet: run spv truth split first")
     results = {m: match_result(load_alignment(m), _load_spot(m)) for m in split["p0"]}
-    text = p0_report(results)
+    untestable = load_untestable()
+    text = p0_report(results, untestable)
     path = truth_dir() / "p0_report.md"
     if path.exists():
         old = path.read_text(encoding="utf-8").splitlines(keepends=True)
@@ -192,7 +204,26 @@ def _report(a) -> int:
             text += "\n" + "".join(old[notes:])
     path.write_text(text, encoding="utf-8")
     print(text)
-    return 0 if results and all(r["usable"] for r in results.values()) else 1
+    testable = [r for m, r in results.items() if m not in untestable]
+    return 0 if len(testable) >= MIN_TESTABLE and all(r["usable"] for r in testable) else 1
+
+
+def _untestable(a) -> int:
+    from spv.truth.registry import registered
+
+    split = load_split()
+    if not split:
+        raise ValueError("no split yet: run spv truth split first")
+    if a.match not in registered():
+        raise ValueError(f"{a.match} is not registered: run spv truth add first")
+    if a.match not in split["p0"]:
+        raise ValueError(f"{a.match} is not a P0 match ({', '.join(split['p0'])})")
+    data = load_untestable()
+    data[a.match] = a.reason
+    path = untestable_path()
+    path.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"{a.match}: not testable ({a.reason})")
+    return 0
 
 
 def _load_spot(match_id: str) -> dict:
@@ -252,4 +283,6 @@ def register_truth(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--kind", choices=["ok", "wrong"], required=True)
     p.add_argument("--place", choices=["ok", "wrong", "unsure"], required=True)
     p.add_argument("--team", choices=["ok", "wrong", "unsure"], required=True)
+    p = command("untestable", "record that a P0 match cannot be judged on its footage", _untestable)
+    p.add_argument("--reason", required=True)
     command("report", "write tests/truth/p0_report.md with the go / stop verdict", _report, match=False)

@@ -10,6 +10,7 @@ from spv.truth.spot import SAMPLE_SIZE, spot_score
 SPREAD_LIMIT_S = 1.0  # anchors in one half must agree within this
 SPOT_SHARE = 0.9  # 18 of 20
 MIN_MARKS = 3  # anchors per half
+MIN_TESTABLE = 2  # P0 matches that must be testable for a GO
 
 
 def match_result(alignment: dict, spot: dict) -> dict:
@@ -45,7 +46,8 @@ def _plain(value: float | None) -> str:
     return "-" if value is None else f"{value:.2f}"
 
 
-def p0_report(results: dict[str, dict]) -> str:
+def p0_report(results: dict[str, dict], untestable: dict[str, str] | None = None) -> str:
+    untestable = untestable or {}
     lines = ["# P0: can the event files be trusted?", "",
              "| Match | Offset h1 (s) | Spread h1 (s) | Offset h2 (s) | Spread h2 (s) | A attacks (h1/h2) "
              "| Spot checks right | Not visible (replaced) | Usable |",
@@ -53,12 +55,17 @@ def p0_report(results: dict[str, dict]) -> str:
     for match_id, r in sorted(results.items()):
         attack = "/".join(r["attack"][h]["A"] if h in r["attack"] else "-" for h in (1, 2))
         right, _, total = r["spot"]
-        usable = "yes" if r["usable"] else "no: " + "; ".join(r["reasons"])
+        usable = f"not testable: {untestable[match_id]}" if match_id in untestable else "yes" if r["usable"] else "no: " + "; ".join(r["reasons"])
         lines.append(f"| {match_id} | {_signed(r['offsets'][1])} | {_plain(r['spreads'][1])} "
                      f"| {_signed(r['offsets'][2])} | {_plain(r['spreads'][2])} | {attack} | {right}/{total} | {r['unseen']} | {usable} |")
-    go = bool(results) and all(r["usable"] for r in results.values())
+    testable = [r for m, r in results.items() if m not in untestable]
+    go = len(testable) >= MIN_TESTABLE and all(r["usable"] for r in testable)
     verdict = "GO" if go else "STOP: talk it through with Thomas before P2"
-    lines += ["", f"**Verdict:** {verdict}", "",
+    lines += ["", f"**Verdict:** {verdict}", ""]
+    skipped = sorted(m for m in results if m in untestable)
+    if skipped:
+        lines += [f"Not testable (excluded from the verdict, decided by Thomas): {', '.join(skipped)}.", ""]
+    lines += [
               f"Gate: anchors within {SPREAD_LIMIT_S:g} s per half (at least {MIN_MARKS}), attacking direction "
               f"consistent, at least {SPOT_SHARE:.0%} of spot checks right.",
               "Anchors and spot checks were judged by eye by Claude from contact sheets; the frames stay in runs/ "

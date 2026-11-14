@@ -68,3 +68,19 @@ def test_unseen_rows_leave_too_few_visible_rows_until_topped_up():
     assert result["usable"], result["reasons"]
     assert "Not visible (replaced)" in p0_report({"m01": result})
     assert "| 20/20 | 2 |" in p0_report({"m01": result})
+
+
+def test_untestable_match_is_left_out_of_the_verdict():
+    good = match_result(_aligned(), _spots(20))
+    text = p0_report({"m01": good, "m03": good, "m13": match_result(_aligned(), _spots(0))}, {"m13": "camera too far"})
+    assert "**Verdict:** GO" in text
+    assert "| m13 |" in text and "not testable: camera too far" in text
+    assert "Not testable (excluded from the verdict, decided by Thomas): m13." in text
+    assert "Not testable" not in p0_report({"m01": good, "m03": good})
+
+
+def test_too_few_testable_matches_is_stop():
+    good = match_result(_aligned(), _spots(20))
+    text = p0_report({"m01": good, "m03": good, "m13": good}, {"m03": "dark", "m13": "far"})
+    assert "**Verdict:** STOP" in text
+    assert "decided by Thomas): m03, m13." in text
