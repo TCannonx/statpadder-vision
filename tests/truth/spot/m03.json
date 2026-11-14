@@ -1,0 +1,356 @@
+{
+ "rows": [
+  "10",
+  "202",
+  "328",
+  "713",
+  "759",
+  "1127",
+  "1262",
+  "1291",
+  "1306",
+  "1496",
+  "1498",
+  "1746",
+  "1750",
+  "2118",
+  "2120",
+  "2121",
+  "2272",
+  "2382",
+  "2383",
+  "2483",
+  "317",
+  "731",
+  "764",
+  "1058",
+  "1138",
+  "1219",
+  "1716",
+  "2228",
+  "2326",
+  "2327",
+  "163",
+  "337",
+  "760",
+  "1053",
+  "945",
+  "1236",
+  "1771",
+  "2287",
+  "242",
+  "293",
+  "718",
+  "246",
+  "431",
+  "834",
+  "128",
+  "444",
+  "689",
+  "123",
+  "79",
+  "1437"
+ ],
+ "verdicts": {
+  "10": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1053": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1058": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1127": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1138": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1219": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "123": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1236": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1262": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "128": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1291": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1306": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1437": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1496": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1498": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "163": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1716": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1746": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1750": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1771": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "202": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2118": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2120": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "2121": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "2228": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "ok"
+  },
+  "2272": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2287": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2326": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2327": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2382": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2383": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "242": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "246": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2483": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "ok"
+  },
+  "293": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "317": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "328": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "337": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "431": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "444": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "689": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "713": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "718": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "731": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "759": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "760": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "764": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "79": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "834": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "945": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  }
+ }
+}

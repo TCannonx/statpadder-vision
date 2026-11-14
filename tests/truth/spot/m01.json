@@ -1,0 +1,286 @@
+{
+ "rows": [
+  "8",
+  "21",
+  "77",
+  "79",
+  "97",
+  "244",
+  "628",
+  "747",
+  "752",
+  "753",
+  "1048",
+  "1071",
+  "1312",
+  "1320",
+  "1658",
+  "1995",
+  "2086",
+  "2228",
+  "2232",
+  "2242",
+  "30",
+  "144",
+  "117",
+  "1124",
+  "1210",
+  "1765",
+  "1965",
+  "1967",
+  "2214",
+  "2205",
+  "14",
+  "60",
+  "52",
+  "1060",
+  "1331",
+  "1502",
+  "333",
+  "38",
+  "126",
+  "149"
+ ],
+ "verdicts": {
+  "1048": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "1060": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1071": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1124": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "117": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1210": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "126": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1312": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1320": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1331": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "14": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "144": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "149": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "1502": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1658": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1765": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1965": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1967": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "1995": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2086": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "21": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2205": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "2214": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2228": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "2232": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "2242": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "244": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "30": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "333": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "38": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "52": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "60": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "628": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "747": {
+   "kind": "ok",
+   "moment": "off",
+   "place": "unsure",
+   "team": "ok"
+  },
+  "752": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "753": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "ok"
+  },
+  "77": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "79": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  },
+  "8": {
+   "kind": "ok",
+   "moment": "ok",
+   "place": "ok",
+   "team": "unsure"
+  },
+  "97": {
+   "kind": "ok",
+   "moment": "unseen",
+   "place": "unsure",
+   "team": "unsure"
+  }
+ }
+}
