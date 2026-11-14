@@ -5,7 +5,7 @@
 **Goal:** The skeleton every later stage plugs into: the `spv` package and CLI, the job file and
 lineup, the stage cache and resumable pipeline, the `.sptrack` format with its reader, the
 simulator (public tracking data seen through a simulated ball-following camera), the regression
-check, and `Bohs\clip1.mp4` registered as the first reference clip.
+check, and `<club folder>\clip1.mp4` registered as the first reference clip.
 
 **Architecture:** A Python package `spv` (src layout). `spv process --job job.json` runs a list of
 stages through a cache that fingerprints each stage's inputs; this step ships only two real
@@ -41,7 +41,7 @@ ffprobe (ffmpeg) for video metadata, Docker, GitHub Actions.
 
 1. **Lineup with fewer than 11 a side** (academy 9 v 9) or a red card: the unused slots are
    "not on the pitch" for those moments, never "unknown". Test in Task 2 and Task 5.
-2. **Video paths with spaces and dots** (`Bohemians Vs. Kildare 20s - Tactical.mp4`): probe and
+2. **Video paths with spaces and dots** (`Home Vs. Away 20s - Tactical.mp4`): probe and
    cache work unchanged. Test in Task 5.
 3. **A run stopped mid-stage**: the half-written stage is redone on the next run, never treated as
    done. Test in Task 4.
@@ -273,7 +273,7 @@ x/y → `SptrackError`; for NOT_ON_PITCH/UNKNOWN x, y, unc are stored as 0.
     writes `<output stem>.run_report.json` beside it, returns 0; errors print one line and return 1.
   - `tests/conftest.py` fixture `tiny_video(tmp_path_factory) -> Path`: 3.0 s, 25 fps, 320×180
     from `ffmpeg -f lavfi -i testsrc=duration=3:size=320x180:rate=25`, saved under a folder
-    named `with spaces. dots` as `Bohemians Vs. test - Tactical.mp4`; tests using it skip when
+    named `with spaces. dots` as `Home Vs. test - Tactical.mp4`; tests using it skip when
     ffmpeg isn't on PATH.
 
 - [ ] **Step 1: Write failing tests:**
@@ -284,7 +284,7 @@ x/y → `SptrackError`; for NOT_ON_PITCH/UNKNOWN x, y, unc are stored as 0.
   - `test_missing_video_message(tmp_path, capsys)`: exit 1 and stderr contains the video path.
 - [ ] **Step 2: Run** `pytest tests/test_process.py -v` → FAIL.
 - [ ] **Step 3: Implement** the two stages and the `process` subcommand. `ProbeStage.inputs` = `{"video": file_identity(job.video)}`; `ExportStage.inputs` = `{"lineup": file_identity(job.lineup), "pitch": job.pitch, "rate": job.rate}`.
-- [ ] **Step 4: Run** → PASS. Then manually: a job for `Bohs\clip1.mp4` (personal OneDrive) in the scratchpad with `tests/clips/clip1.lineup.json` (created in Task 10; for now a copy of `lineup_11.json`), `spv process` → reports 450-ish moments. Don't commit the job.
+- [ ] **Step 4: Run** → PASS. Then manually: a job for `<club folder>\clip1.mp4` (personal OneDrive) in the scratchpad with `tests/clips/clip1.lineup.json` (created in Task 10; for now a copy of `lineup_11.json`), `spv process` → reports 450-ish moments. Don't commit the job.
 - [ ] **Step 5: Commit** `feat: probe and export stages, spv process`.
 
 ### Task 6: Public tracking data (simulator truth)
@@ -483,7 +483,7 @@ Algorithm (not determined by the signature):
   - `test_clips_suite_none_without_config` → `None`.
   - `test_clips_suite_runtime_measure`: returns one measure named `clip.x.runtime_s_per_video_min`.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS.
-- [ ] **Step 5: Register clip1.** `spv clip add clip1 "<path to Bohsip1.mp4>"`, then
+- [ ] **Step 5: Register clip1.** `spv clip add clip1 "<path to clip1.mp4>"`, then
   `spv check --suite clips --update-baselines`, then `spv check` (all) → exit 0. Check
   `git status` shows no `local.config.json` and no video.
 - [ ] **Step 6: Commit** `feat: reference clip registration and clips suite` with both results tables.

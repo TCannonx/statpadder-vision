@@ -213,7 +213,7 @@ Short clips from Thomas's recordings: 30 to 60 seconds each, with pans, zooms, a
 and play at both ends. They live in personal OneDrive, never in the repo, because they show
 minors. A git-ignored local config file holds their paths.
 
-The first reference clip is `Bohs\clip1.mp4` (45 s, May 2026). More are added as they are
+The first reference clip is `<club folder>\clip1.mp4` (45 s, May 2026). More are added as they are
 needed. Their known answers come with as little hand work as possible:
 
 - **Camera**: landmarks Thomas has already labelled where the clip overlaps them. Otherwise
@@ -270,7 +270,7 @@ Each is its own plan and set of changes, and each has to pass the check before t
 - **Roboflow datasets**: Thomas has two in Roboflow: about 20,000 images annotated with pitch
   keypoints, and one annotated with players and referees. He will give their URLs for export.
   The local fallback is 9,992 frames of landmark labels
-  (`Bohs\statpadder\Automation\football_analysis\coco_keypoints_annotations.json`, and the same
+  (`<club folder>\statpadder\Automation\football_analysis\coco_keypoints_annotations.json`, and the same
   as YOLO files in `yolo_dataset`). Downloaded datasets stay in personal OneDrive, never in the
   repo.
 - **Graphics card**: NVIDIA GeForce RTX 2060, 6 GB (driver 595.95, CUDA 13.2), read on
