@@ -86,3 +86,21 @@ def test_read_events_detects_xml(tmp_path):
     tf = read_events(_write(tmp_path, "e.xml", EYEBALL_XML_SAMPLE))
     assert tf.source == "eyeball"
     assert len(tf.events) == 9
+
+
+def test_team_names_in_order_for_every_format(tmp_path):
+    from spv.truth.events import team_names
+
+    assert team_names(_write(tmp_path, "e.csv", EYEBALL_SAMPLE)) == ["Alpha", "Beta"]
+    assert team_names(_write(tmp_path, "e.xml", EYEBALL_XML_SAMPLE)) == ["Alpha", "Beta"]
+    assert team_names(_write(tmp_path, "s.csv", STATPADDER_SAMPLE)) == ["Us", "Them"]
+    bad = _write(tmp_path, "x.csv", "a,b\n1,2\n")
+    with pytest.raises(ValueError):
+        team_names(bad)
+
+
+def test_read_events_repr_holds_no_names(tmp_path):
+    for name, text in (("e.csv", EYEBALL_SAMPLE), ("e.xml", EYEBALL_XML_SAMPLE), ("s.csv", STATPADDER_SAMPLE)):
+        r = repr(read_events(_write(tmp_path, name, text)))
+        for n in ("Alpha", "Beta", "Us", "Them"):
+            assert f"'{n}'" not in r and f"={n}" not in r

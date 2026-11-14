@@ -1,0 +1,73 @@
+{
+ "accuracy": {
+  "team_of": 30,
+  "team_right": 30,
+  "zone_of": 30,
+  "zone_right": 30
+ },
+ "at_2s": {
+  "corner": {
+   "matched": 0,
+   "precision": 0.0,
+   "pred": 9,
+   "recall": 0.0,
+   "truth": 13
+  },
+  "free_kick_final_third": {
+   "matched": 0,
+   "precision": 0.0,
+   "pred": 5,
+   "recall": 0.0,
+   "truth": 5
+  },
+  "goal": {
+   "matched": 0,
+   "precision": 0.0,
+   "pred": 2,
+   "recall": 0.0,
+   "truth": 2
+  },
+  "shot": {
+   "matched": 0,
+   "precision": 0.0,
+   "pred": 19,
+   "recall": 0.0,
+   "truth": 20
+  }
+ },
+ "at_5s": {
+  "corner": {
+   "matched": 9,
+   "precision": 1.0,
+   "pred": 9,
+   "recall": 0.6923076923076923,
+   "truth": 13
+  },
+  "free_kick_final_third": {
+   "matched": 5,
+   "precision": 1.0,
+   "pred": 5,
+   "recall": 1.0,
+   "truth": 5
+  },
+  "goal": {
+   "matched": 2,
+   "precision": 1.0,
+   "pred": 2,
+   "recall": 1.0,
+   "truth": 2
+  },
+  "shot": {
+   "matched": 14,
+   "precision": 0.7368421052631579,
+   "pred": 19,
+   "recall": 0.7,
+   "truth": 20
+  }
+ },
+ "halves": [
+  1,
+  2
+ ],
+ "team_mapping": "by name"
+}

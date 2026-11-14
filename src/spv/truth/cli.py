@@ -232,6 +232,73 @@ def _load_spot(match_id: str) -> dict:
     return load_spot(match_id)
 
 
+def _score_dir() -> Path:
+    return truth_dir() / "score"
+
+
+def _label(label: str) -> str:
+    import re
+
+    if not re.fullmatch(r"[a-z0-9-]{1,40}", label):
+        raise ValueError("--label must be 1-40 characters: lower-case letters, digits, hyphens")
+    return label
+
+
+def _score(a) -> int:
+    from spv.truth.align import half_offset, load_alignment
+    from spv.truth.events import read_events, team_names
+    from spv.truth.registry import registered
+    from spv.truth.score import group, score_markdown, score_match, team_map
+
+    label = _label(a.label)
+    matches = registered()
+    if a.match not in matches:
+        raise ValueError(f"{a.match} is not registered: run spv truth add first")
+    truth_path, pred_path = Path(matches[a.match]["events"]), Path(a.pred)
+    truth, pred_file = read_events(truth_path).events, read_events(pred_path)
+    pred = pred_file.events
+    in_groups = sum(1 for e in pred if group(e) is not None)
+    if not in_groups:
+        raise ValueError("the prediction has no events in any bar group (goal, corner, final-third free kick, shot)")
+    alignment = load_alignment(a.match)
+    saved = {h: half_offset(alignment, h) for h in (1, 2)}
+    unaligned = [h for h in (1, 2) if saved[h] is None]
+    if unaligned and not a.assume_zero_offset:
+        raise ValueError(f"half {unaligned[0]} of {a.match} has no saved offset: run spv truth mark, "
+                         "or pass --assume-zero-offset")
+    offsets = {h: 0.0 if v is None else v for h, v in saved.items()}
+    if a.teams:
+        mapping, given = ({"A": "A", "B": "B"} if a.teams == "same" else {"A": "B", "B": "A"}), True
+    else:
+        mapping, given = team_map(team_names(truth_path), team_names(pred_path)), False
+    result = score_match(truth, pred, offsets, mapping, [a.half] if a.half else None, given)
+    text = score_markdown(a.match, label, result)
+    out = _score_dir()
+    out.mkdir(parents=True, exist_ok=True)
+    (out / f"{a.match}-{label}.json").write_text(json.dumps(result, indent=1, sort_keys=True) + "\n",
+                                                        encoding="utf-8")
+    (out / f"{a.match}-{label}.md").write_text(text, encoding="utf-8")
+    print(f"pred: {pred_file.rows} rows, {len(pred)} events read, {in_groups} in bar groups")
+    print(text)
+    return 0
+
+
+def _score_pool(a) -> int:
+    from spv.truth.score import pool, score_markdown
+
+    label = _label(a.label)
+    import re
+
+    pattern = re.compile(r"m\d{2}-" + re.escape(label) + r"\.json")
+    files = sorted(f for f in _score_dir().glob("*.json") if pattern.fullmatch(f.name))
+    if not files:
+        raise ValueError(f"no scores with label {label}: run spv truth score first")
+    text = score_markdown("pool", label, pool([json.loads(f.read_text(encoding="utf-8")) for f in files]))
+    (_score_dir() / f"pool-{label}.md").write_text(text, encoding="utf-8")
+    print(text)
+    return 0
+
+
 def _guarded(func):
     def run(args: argparse.Namespace) -> int:
         try:
@@ -286,3 +353,12 @@ def register_truth(sub: argparse._SubParsersAction) -> None:
     p = command("untestable", "record that a P0 match cannot be judged on its footage", _untestable)
     p.add_argument("--reason", required=True)
     command("report", "write tests/truth/p0_report.md with the go / stop verdict", _report, match=False)
+    p = command("score", "score a prediction file against a match's truth", _score)
+    p.add_argument("pred", type=Path)
+    p.add_argument("--label", required=True)
+    p.add_argument("--half", type=int, choices=[1, 2], help="score this half only (default: the halves the prediction covers)")
+    p.add_argument("--teams", choices=["same", "swapped"], help="override the name-based team mapping")
+    p.add_argument("--assume-zero-offset", action="store_true",
+                   help="score even though a half has no saved offset (treated as 0 s)")
+    p = command("score-pool", "pool every score with a label", _score_pool, match=False)
+    p.add_argument("--label", required=True)

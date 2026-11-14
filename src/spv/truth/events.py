@@ -107,8 +107,8 @@ def _classify_eyeball(rows: list[dict[str, str]]) -> tuple[list[TruthEvent], int
     return events, timed
 
 
-def read_eyeball_xml(path: Path) -> TruthFile:
-    """An Eyeball Sportscode XML export: the same data as the CSV, in <instance> elements."""
+def _xml_rows(path: Path) -> list[dict[str, str]]:
+    """Eyeball Sportscode XML instances reshaped into the CSV's row form."""
     root = ET.fromstring(Path(path).read_bytes())
     rows: list[dict[str, str]] = []
     for inst in root.iter("instance"):
@@ -137,6 +137,12 @@ def read_eyeball_xml(path: Path) -> TruthFile:
                 "Details": json.dumps(details),
             }
         )
+    return rows
+
+
+def read_eyeball_xml(path: Path) -> TruthFile:
+    """An Eyeball Sportscode XML export: the same data as the CSV, in <instance> elements."""
+    rows = _xml_rows(path)
     events, timed = _classify_eyeball(rows)
     return TruthFile("eyeball", len(rows), timed, events)
 
@@ -180,6 +186,25 @@ def read_events(path: Path) -> TruthFile:
     if "video_ms" in first:
         return read_statpadder(path)
     raise ValueError(f"{Path(path).name}: not an Eyeball events file or a StatPadder export")
+
+
+def team_names(path: Path) -> list[str]:
+    """Team names in order of first appearance (A first), read as the readers do. In memory only."""
+    text = Path(path).read_text(encoding="utf-8-sig")
+    if text.lstrip().startswith(("<?xml", "<file")):
+        rows, key = _xml_rows(path), "Team"
+    else:
+        first = text.splitlines()[0] if text.splitlines() else ""
+        if "Video time" in first:
+            rows, key = _rows(text, ";"), "Team"
+        elif "video_ms" in first:
+            rows, key = _rows(text, ","), "team"
+        else:
+            raise ValueError(f"{Path(path).name}: not an Eyeball events file or a StatPadder export")
+    teams = _Teams()
+    for row in rows:
+        teams.letter(row.get(key, ""))
+    return teams.names
 
 
 def zone(x: float | None, y: float | None) -> str:
