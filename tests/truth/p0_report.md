@@ -1,38 +1,37 @@
 # P0: can the event files be trusted?
 
-| Match | Offset h1 (s) | Spread h1 (s) | Offset h2 (s) | Spread h2 (s) | A attacks (h1/h2) | Spot checks right | Usable |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| m01 | +0.25 | 0.50 | +0.50 | 0.50 | left/right | 19/20 | yes |
-| m03 | +0.50 | 0.50 | +0.50 | 0.50 | left/right | 20/20 | yes |
-| m13 | +0.50 | 0.00 | +0.50 | 0.00 | right/left | 19/20 | yes |
+| Match | Offset h1 (s) | Spread h1 (s) | Offset h2 (s) | Spread h2 (s) | A attacks (h1/h2) | Spot checks right | Not visible (replaced) | Usable |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| m01 | +0.25 | 0.50 | +0.50 | 0.50 | left/right | 19/20 | 20 | yes |
+| m03 | +0.50 | 0.50 | +0.50 | 0.50 | left/right | 20/20 | 30 | yes |
+| m13 | +0.50 | 0.00 | +0.50 | 0.00 | right/left | 13/15 | 54 | no: spot checks: 13 of 15 right, need 14; spot checks: only 15 visible rows, need 20 |
 
-**Verdict:** GO
+**Verdict:** STOP: talk it through with Thomas before P2
 
 Gate: anchors within 1 s per half (at least 3), attacking direction consistent, at least 90% of spot checks right.
 Anchors and spot checks were judged by eye by Claude from contact sheets; the frames stay in runs/ and are never committed.
 
 ## Notes
 
-**Which videos.** P0 was run against the cut videos the event files were coded on, downloaded from the event supplier, not the Hudl copies. On m03 the Hudl copy did not line up with the file inside half 1: a corner the file places at 27:28 was confirmed in the supplier's cut but was not at the matching point in the Hudl copy. The Hudl copies used for the eight training matches will need their own alignment, ideally an automatic one with drift detection, before anything trains on them.
+**How the spot checks were judged (strict rubric).** A row counts only if the event itself is visible in the frames: the throw being taken, the keeper striking a goal kick, the box reacting to a corner delivery, a kick-off starting, or a goal celebration. A row whose event is off camera or too small to see is marked not visible and replaced by another row, so each match is meant to be judged on 20 rows that could actually be seen. After the first round, replacements were drawn only from corners, throw-ins, kick-offs and goals, because replacement free kicks, goal kicks and shots were almost never visible on this camera. Alignment anchor rows were never used as replacements.
 
-**Timing: strong.** Every half of every P0 match lines up at an offset of about +0.5 s with a spread of at most 0.5 s. No drift was seen. Anchors were kick-offs, which are the clearest moment on this camera, plus corners judged from the reaction in the box, because the corner flag is rarely in shot.
-
-**Spot checks: what "right" means here.** The gate passes, but the place and team verdicts are weak, because the wide, ball-following view seldom shows the taker or the touchline at contact-sheet size.
-
-| Match | Moment off | Place confirmed | Place unsure | Team confirmed | Team unsure |
+| Match | Visible rows | Right | Not visible | Team confirmed | Place confirmed |
 | --- | --- | --- | --- | --- | --- |
-| m01 | 1 | 6 | 14 | 3 | 17 |
-| m03 | 0 | 6 | 14 | 5 | 15 |
-| m13 | 1 | 6 | 14 | 0 | 20 |
+| m01 | 20 | 19 | 20 | 8 | 14 |
+| m03 | 20 | 20 | 30 | 10 | 9 |
+| m13 | 15 | 13 | 54 | 1 | 9 |
 
-- "Unsure" counts as right under the gate, so the 19/20 and 20/20 scores test timing and event type far more than place and team.
-- On several free kicks, goal kicks and throw-ins the restart itself is off camera. These were marked as right on context, because play is stopped and players are waiting where the file puts the restart.
-- Kit reads from contact sheets were unreliable. On m03 the first read had the two teams the wrong way round and was corrected by Thomas. On m13 the kits were not settled by eye, so no team verdict there is confirmed.
+**Why STOP.** m01 and m03 pass. m13 fails on coverage, not on coding: its camera sits far from most of the action, and only 15 rows could be judged before the useful candidates ran out (most remaining rows are far-side throw-ins). Of the 15, 13 are right.
 
-**The two misses.**
-- m01, a shot logged about 2.5 to 3 s before the strike. The goal row for the same attack is on time.
-- m13, a free kick logged before the foul that leads to it. The free kick is not taken within 2 s of the logged time.
+**What the files got wrong where it could be seen.** Three misses in 55 visible rows:
+- m01, a shot logged about 2.5 to 3 s before the strike (the goal row for the same attack is on time).
+- m13, a free kick logged before the foul that leads to it.
+- m13, a free kick taken about 4 s after its logged time.
 
-**Hand-coded matches.** Every StatPadder export checked carries `video_ms` on all rows. The older hand-coded files carry video seconds from 2024 onwards, and the two from 2023 carry none.
+**Timing: strong.** Every half of every P0 match lines up within 1 s, with no drift. Kick-offs sit at about 0.0 s and corners at +0.5 s; that half-second is the delay of judging a corner from the box's reaction, not drift.
 
-**How sure.** High confidence in timing and in the type of event. Low confidence in place and team. P1 should not lean on these files for team or zone accuracy until those fields are checked another way, for example against detected kits and camera position.
+**Which videos.** P0 was run against the cut videos the event files were coded on, downloaded from the event supplier, not the Hudl copies. On m03 the Hudl copy did not line up with the file inside half 1: a corner the file places at 27:28 was confirmed in the supplier's cut (by Thomas) but was not at the matching point in the Hudl copy. The Hudl copies used for training matches need their own alignment before anything trains on them.
+
+**Team and place.** Mostly unconfirmed: team on 8, 10 and 1 rows and place on 14, 9 and 9. Kit reads from contact sheets were unreliable (m03's teams were first read the wrong way round and corrected by Thomas). P1 should not lean on these files for team or zone accuracy until those fields are checked another way.
+
+**Hand-coded matches.** Every StatPadder export checked carries `video_ms` on all rows. The older hand-coded files carry video seconds from 2024 onwards; the two from 2023 carry none.
