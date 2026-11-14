@@ -46,6 +46,11 @@ def _plain(value: float | None) -> str:
     return "-" if value is None else f"{value:.2f}"
 
 
+def is_go(results: dict[str, dict], untestable: dict[str, str] | None = None) -> bool:
+    testable = [r for m, r in results.items() if m not in (untestable or {})]
+    return len(testable) >= MIN_TESTABLE and all(r["usable"] for r in testable)
+
+
 def p0_report(results: dict[str, dict], untestable: dict[str, str] | None = None) -> str:
     untestable = untestable or {}
     lines = ["# P0: can the event files be trusted?", "",
@@ -55,11 +60,15 @@ def p0_report(results: dict[str, dict], untestable: dict[str, str] | None = None
     for match_id, r in sorted(results.items()):
         attack = "/".join(r["attack"][h]["A"] if h in r["attack"] else "-" for h in (1, 2))
         right, _, total = r["spot"]
-        usable = f"not testable: {untestable[match_id]}" if match_id in untestable else "yes" if r["usable"] else "no: " + "; ".join(r["reasons"])
+        if match_id in untestable:
+            usable = f"not testable: {untestable[match_id]}"
+        elif r["usable"]:
+            usable = "yes"
+        else:
+            usable = "no: " + "; ".join(r["reasons"])
         lines.append(f"| {match_id} | {_signed(r['offsets'][1])} | {_plain(r['spreads'][1])} "
                      f"| {_signed(r['offsets'][2])} | {_plain(r['spreads'][2])} | {attack} | {right}/{total} | {r['unseen']} | {usable} |")
-    testable = [r for m, r in results.items() if m not in untestable]
-    go = len(testable) >= MIN_TESTABLE and all(r["usable"] for r in testable)
+    go = is_go(results, untestable)
     verdict = "GO" if go else "STOP: talk it through with Thomas before P2"
     lines += ["", f"**Verdict:** {verdict}", ""]
     skipped = sorted(m for m in results if m in untestable)

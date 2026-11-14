@@ -90,3 +90,13 @@ def test_untestable_rejects_a_match_outside_p0(repo, tiny_video):
     other = next(m for m in ("m01", "m02", "m03", "m04") if m not in p0)
     assert main(["truth", "untestable", other, "--reason", "x"]) == 1
     assert not (repo / "tests/truth/untestable.json").exists()
+
+
+def test_untestable_needs_a_reason(repo, tiny_video, capsys):
+    events = repo / "e.csv"
+    events.write_text(EYEBALL_TIMED, encoding="utf-8-sig")
+    assert main(["truth", "add", "m01", str(tiny_video), str(events)]) == 0
+    assert main(["truth", "split"]) == 0
+    assert main(["truth", "untestable", "m01", "--reason", "  "]) == 1
+    assert "reason" in capsys.readouterr().err
+    assert not (repo / "tests/truth/untestable.json").exists()

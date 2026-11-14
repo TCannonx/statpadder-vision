@@ -186,9 +186,8 @@ def _spot(a) -> int:
 
 
 def _report(a) -> int:
-    from spv.truth import truth_dir
     from spv.truth.align import load_alignment
-    from spv.truth.report import MIN_TESTABLE, match_result, p0_report
+    from spv.truth.report import is_go, match_result, p0_report
 
     split = load_split()
     if not split:
@@ -204,13 +203,14 @@ def _report(a) -> int:
             text += "\n" + "".join(old[notes:])
     path.write_text(text, encoding="utf-8")
     print(text)
-    testable = [r for m, r in results.items() if m not in untestable]
-    return 0 if len(testable) >= MIN_TESTABLE and all(r["usable"] for r in testable) else 1
+    return 0 if is_go(results, untestable) else 1
 
 
 def _untestable(a) -> int:
     from spv.truth.registry import registered
 
+    if not a.reason.strip():
+        raise ValueError("give a reason: --reason must not be empty")
     split = load_split()
     if not split:
         raise ValueError("no split yet: run spv truth split first")
