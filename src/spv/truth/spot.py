@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from spv.truth import truth_dir
-from spv.truth.events import TruthEvent
+from spv.truth.events import KINDS, TruthEvent
 
 TARGETS = (("goal", 3), ("shot", 5), ("corner", 4), ("free_kick", 3), ("goal_kick", 2), ("throw_in", 2),
            ("kick_off", 1))
@@ -84,8 +84,14 @@ def spot_score(data: dict) -> tuple[int, int, int]:
     return right, len(verdicts), len(judged)
 
 
-def top_up(data: dict, events: list[TruthEvent], exclude=frozenset(), n: int = SAMPLE_SIZE) -> list[str]:
-    """Replace each not-visible row by one that can be judged, until n rows can be judged. Returns the rows added."""
+def top_up(data: dict, events: list[TruthEvent], exclude=frozenset(), n: int = SAMPLE_SIZE,
+           kinds=None) -> list[str]:
+    """Replace each not-visible row by one that can be judged, until n rows can be judged. Returns the rows added.
+    kinds limits the rows picked to those kinds (default: the usual fill kinds)."""
+    allowed = FILL_KINDS if kinds is None else tuple(kinds)
+    unknown = [k for k in allowed if k not in KINDS]
+    if unknown:
+        raise ValueError(f"unknown kind {', '.join(map(str, unknown))}; kinds are {', '.join(KINDS)}")
     by_id = {e.row_id: e for e in events}
     unseen_rows = [r for r in data["rows"] if data["verdicts"].get(r, {}).get("moment") == "unseen"]
     added: list[str] = []
@@ -97,7 +103,8 @@ def top_up(data: dict, events: list[TruthEvent], exclude=frozenset(), n: int = S
         gone = by_id[row]
         taken = set(data["rows"]) | set(exclude)
         left = [e for e in events if e.row_id not in taken]
-        pool = [e for e in left if e.kind == gone.kind] or [e for e in left if e.kind in FILL_KINDS]
+        same = [e for e in left if e.kind == gone.kind] if kinds is None or gone.kind in allowed else []
+        pool = same or [e for e in left if e.kind in allowed]
         if not pool:
             break
         pick = min(pool, key=lambda e: (abs((e.half - gone.half) * 1e6 + e.video_s - gone.video_s),

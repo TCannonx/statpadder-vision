@@ -80,3 +80,19 @@ def test_top_up_is_deterministic_and_idle_without_unseen():
     assert top_up({"rows": ["0", "1"], "verdicts": {}}, events) == []
     assert top_up(_unseen(["2", "3"], "2", "3"), events) == top_up(_unseen(["2", "3"], "2", "3"), events)
     assert len(top_up(_unseen(["2", "3"], "2", "3"), events)) == 2
+
+
+def test_top_up_kinds_limits_candidates():
+    events = _events(["free_kick", "free_kick", "corner", "throw_in", "shot"])
+    d = _unseen(["0"], "0")
+    pick = top_up(d, events, n=1, kinds={"corner", "throw_in"})
+    assert pick == ["2"]
+    d = _unseen(["0", "2"], "0")
+    assert top_up(d, events, n=2, kinds=["throw_in"]) == ["3"]
+    assert all(events[int(r)].kind != "free_kick" for r in pick)
+
+
+def test_top_up_kinds_unknown_raises():
+    events = _events(["corner", "corner"])
+    with pytest.raises(ValueError):
+        top_up(_unseen(["0"], "0"), events, kinds={"cornerr"})

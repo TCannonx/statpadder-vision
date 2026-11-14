@@ -136,13 +136,15 @@ def _spots(a) -> int:
     missing = [h for h in (1, 2) if base[h] is None]
     if missing:
         raise ValueError(f"align half {missing[0]} first (spv truth mark)")
+    kinds = [k.strip() for k in a.kinds.split(",") if k.strip()] if a.kinds else None
     data = load_spot(a.match)
     if not data["rows"]:
         data["rows"] = sample_spot_rows(list(events.values()))
         save_spot(a.match, data)
         sheet_rows = data["rows"]
     else:
-        sheet_rows = top_up(data, list(events.values()), exclude={m["row"] for m in alignment["marks"]})
+        sheet_rows = top_up(data, list(events.values()), exclude={m["row"] for m in alignment["marks"]},
+                            kinds=kinds)
         if not sheet_rows:
             print("no rows to add")
             return 0
@@ -242,7 +244,8 @@ def register_truth(sub: argparse._SubParsersAction) -> None:
     p = command("attack", "record which side of the picture a row's team attacks", _attack)
     p.add_argument("--row", required=True)
     p.add_argument("--goal", choices=["left", "right"], required=True)
-    command("spots", "choose the 20 spot-check rows and make their sheets", _spots)
+    p = command("spots", "choose the 20 spot-check rows and make their sheets", _spots)
+    p.add_argument("--kinds", help="comma-separated kinds the top-up rows may have, e.g. corner,throw_in")
     p = command("spot", "record a spot-check verdict", _spot)
     p.add_argument("--row", required=True)
     p.add_argument("--moment", choices=["ok", "off", "unseen"], required=True)
