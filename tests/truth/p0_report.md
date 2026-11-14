@@ -4,9 +4,11 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | m01 | +0.25 | 0.50 | +0.50 | 0.50 | left/right | 19/20 | 20 | yes |
 | m03 | +0.50 | 0.50 | +0.50 | 0.50 | left/right | 20/20 | 30 | yes |
-| m13 | +0.50 | 0.00 | +0.50 | 0.00 | right/left | 13/15 | 54 | no: spot checks: 13 of 15 right, need 14; spot checks: only 15 visible rows, need 20 |
+| m13 | +0.50 | 0.00 | +0.50 | 0.00 | right/left | 13/15 | 54 | not testable: camera too far from most restarts; only 15 visible rows |
 
-**Verdict:** STOP: talk it through with Thomas before P2
+**Verdict:** GO
+
+Not testable (excluded from the verdict, decided by Thomas): m13.
 
 Gate: anchors within 1 s per half (at least 3), attacking direction consistent, at least 90% of spot checks right.
 Anchors and spot checks were judged by eye by Claude from contact sheets; the frames stay in runs/ and are never committed.
@@ -21,7 +23,7 @@ Anchors and spot checks were judged by eye by Claude from contact sheets; the fr
 | m03 | 20 | 20 | 30 | 10 | 9 |
 | m13 | 15 | 13 | 54 | 1 | 9 |
 
-**Why STOP.** m01 and m03 pass. m13 fails on coverage, not on coding: its camera sits far from most of the action, and only 15 rows could be judged before the useful candidates ran out (most remaining rows are far-side throw-ins). Of the 15, 13 are right.
+**Why m13 is excluded.** m01 and m03 pass. Thomas decided (2026-11-14) to accept GO on those two and record m13 as not testable: it fails on coverage, not on coding: its camera sits far from most of the action, and only 15 rows could be judged before the useful candidates ran out (most remaining rows are far-side throw-ins). Of the 15, 13 are right.
 
 **What the files got wrong where it could be seen.** Three misses in 55 visible rows:
 - m01, a shot logged about 2.5 to 3 s before the strike (the goal row for the same attack is on time).
